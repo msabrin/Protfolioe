@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="32" fill="#B76E79"/>
+
+  <!-- Bunny ears -->
+  <ellipse cx="22" cy="18" rx="6" ry="12" fill="#F4B8C2"/>
+  <ellipse cx="22" cy="18" rx="3.5" ry="8.5" fill="#E8909E"/>
+  <ellipse cx="42" cy="18" rx="6" ry="12" fill="#F4B8C2"/>
+  <ellipse cx="42" cy="18" rx="3.5" ry="8.5" fill="#E8909E"/>
+
+  <!-- Bunny head -->
+  <circle cx="32" cy="36" r="16" fill="#F4B8C2"/>
+
+  <!-- Eyes -->
+  <circle cx="27" cy="33" r="3" fill="#8B4A52"/>
+  <circle cx="37" cy="33" r="3" fill="#8B4A52"/>
+  <circle cx="27.8" cy="32.2" r="1" fill="white"/>
+  <circle cx="37.8" cy="32.2" r="1" fill="white"/>
+
+  <!-- Nose -->
+  <ellipse cx="32" cy="38" rx="2.5" ry="2" fill="#E8909E"/>
+
+  <!-- Cheek blushes -->
+  <circle cx="23" cy="38" r="3.5" fill="#E8909E" opacity="0.5"/>
+  <circle cx="41" cy="38" r="3.5" fill="#E8909E" opacity="0.5"/>
+
+  <!-- Smile -->
+  <path d="M28 41.5 Q32 44.5 36 41.5" stroke="#C8606E" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Crown -->
+  <path d="M21 26 L24 20 L28 24 L32 17 L36 24 L40 20 L43 26 Z" fill="#D4A843"/>
+  <rect x="21" y="26" width="22" height="3.5" rx="1" fill="#D4A843"/>
+  <circle cx="24" cy="20" r="2" fill="#F0C060"/>
+  <circle cx="32" cy="17" r="2" fill="#F0C060"/>
+  <circle cx="40" cy="20" r="2" fill="#F0C060"/>
+</svg>
