@@ -3,9 +3,11 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUp } from "lucide-react";
+import { useTheme } from "./ThemeProvider";
 
 export default function GoToTopButton() {
   const [visible, setVisible] = useState(false);
+  const { isDark } = useTheme();
 
   useEffect(() => {
     const onScroll = () => setVisible(window.scrollY > 300);
@@ -30,7 +32,7 @@ export default function GoToTopButton() {
           onClick={scrollToTop}
           className="fixed bottom-8 right-6 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-glass-lg"
           style={{
-            background: "linear-gradient(135deg, #B76E79, #D4A843)",
+            background: isDark ? "linear-gradient(135deg, #8B0000, #D4AF37)" : "linear-gradient(135deg, #B76E79, #D4A843)",
           }}
           title="Go to top"
         >
@@ -38,7 +40,7 @@ export default function GoToTopButton() {
           {/* Pulse ring */}
           <motion.span
             className="absolute inset-0 rounded-full"
-            style={{ border: "2px solid rgba(183, 110, 121, 0.4)" }}
+            style={{ border: isDark ? "2px solid rgba(139,0,0,0.5)" : "2px solid rgba(183, 110, 121, 0.4)" }}
             animate={{ scale: [1, 1.4], opacity: [0.6, 0] }}
             transition={{ duration: 1.8, repeat: Infinity }}
           />

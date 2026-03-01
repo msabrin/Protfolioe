@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, Monitor, Sparkles, Award, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTheme } from "@/components/global/ThemeProvider";
 
 // ─── IT Achievements (7 cards) ────────────────────────────────────────────────
 const itAchievements = [
@@ -131,6 +132,7 @@ const sportsAchievements = [
 
 // ─── Single achievement card ──────────────────────────────────────────────────
 function AchievementCard({ item }: { item: (typeof itAchievements)[0] }) {
+  const { isDark } = useTheme();
   return (
     <div
       className="relative card-glass rounded-3xl overflow-hidden premium-border h-full flex flex-col"
@@ -139,15 +141,15 @@ function AchievementCard({ item }: { item: (typeof itAchievements)[0] }) {
       {/* Top gradient strip */}
       <div
         className="h-2 w-full shrink-0"
-        style={{ background: "linear-gradient(90deg, #B76E79, #D4A843, #FFC0CB)" }}
+        style={{ background: isDark ? "linear-gradient(90deg, #8B0000, #D4AF37, #B22222)" : "linear-gradient(90deg, #B76E79, #D4A843, #FFC0CB)" }}
       />
       <div className="p-6 flex flex-col flex-1">
         {/* Image placeholder */}
         <div
           className="w-full h-32 rounded-2xl mb-4 flex items-center justify-center relative overflow-hidden shrink-0"
           style={{
-            background: "linear-gradient(135deg, #FFF0F3, #FFF3E8)",
-            border: "1px dashed rgba(183, 110, 121, 0.3)",
+            background: isDark ? "linear-gradient(135deg, #0f0000, #050000)" : "linear-gradient(135deg, #FFF0F3, #FFF3E8)",
+            border: isDark ? "1px dashed rgba(139,0,0,0.35)" : "1px dashed rgba(183, 110, 121, 0.3)",
           }}
         >
           <div className="text-center">
@@ -221,6 +223,7 @@ function AchievementSlider({
   items: typeof itAchievements;
   accentColor: string;
 }) {
+  const { isDark } = useTheme();
   const totalPages = Math.ceil(items.length / CARDS_PER_PAGE);
   const [page, setPage] = useState(0);
   const [direction, setDirection] = useState<SlideDirection>(1);
@@ -260,12 +263,12 @@ function AchievementSlider({
           onClick={() => navigate(-1)}
           whileHover={{ scale: 1.08, x: -2 }}
           whileTap={{ scale: 0.93 }}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-full font-sans text-sm font-medium text-rose-deep transition-all duration-200"
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-sans text-sm font-medium transition-all duration-200 ${isDark ? "text-[#D4AF37]" : "text-rose-deep"}`}
           style={{
-            background: "rgba(255,248,240,0.8)",
+            background: isDark ? "rgba(10,0,0,0.85)" : "rgba(255,248,240,0.8)",
             backdropFilter: "blur(12px)",
-            border: "1px solid rgba(255,192,203,0.4)",
-            boxShadow: "0 4px 16px rgba(183,110,121,0.12)",
+            border: isDark ? "1px solid rgba(139,0,0,0.4)" : "1px solid rgba(255,192,203,0.4)",
+            boxShadow: isDark ? "0 4px 16px rgba(139,0,0,0.18)" : "0 4px 16px rgba(183,110,121,0.12)",
           }}
         >
           <ChevronLeft size={16} />
@@ -286,7 +289,9 @@ function AchievementSlider({
               style={{
                 width: i === page ? 24 : 8,
                 height: 8,
-                background: i === page ? accentColor : "rgba(183,110,121,0.3)",
+                background: i === page
+                  ? (isDark ? "#D4AF37" : accentColor)
+                  : (isDark ? "rgba(139,0,0,0.35)" : "rgba(183,110,121,0.3)"),
               }}
             />
           ))}
@@ -299,8 +304,8 @@ function AchievementSlider({
           whileTap={{ scale: 0.93 }}
           className="flex items-center gap-2 px-5 py-2.5 rounded-full font-sans text-sm font-medium text-white transition-all duration-200"
           style={{
-            background: `linear-gradient(135deg, ${accentColor}, #D4A843)`,
-            boxShadow: `0 4px 16px ${accentColor}55`,
+            background: isDark ? "linear-gradient(135deg, #8B0000, #D4AF37)" : `linear-gradient(135deg, ${accentColor}, #D4A843)`,
+            boxShadow: isDark ? "0 4px 16px rgba(139,0,0,0.45)" : `0 4px 16px ${accentColor}55`,
           }}
         >
           Next
@@ -318,11 +323,12 @@ function AchievementSlider({
 
 // ─── Section ──────────────────────────────────────────────────────────────────
 export default function Achievements() {
+  const { isDark } = useTheme();
   return (
     <section id="achievements" className="py-24 px-6 relative overflow-hidden">
       <div
         className="absolute -top-10 -right-10 w-96 h-96 rounded-full opacity-15 blur-3xl pointer-events-none"
-        style={{ background: "radial-gradient(circle, #D4A843, transparent)" }}
+        style={{ background: isDark ? "radial-gradient(circle, #8B0000, transparent)" : "radial-gradient(circle, #D4A843, transparent)" }}
       />
 
       <div className="max-w-7xl mx-auto">

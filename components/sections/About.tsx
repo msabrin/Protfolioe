@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
 import { MapPin, User, Ruler, Sparkles, Heart } from "lucide-react";
+import { useTheme } from "@/components/global/ThemeProvider";
 
 // Dynamically import the 3D canvas — no SSR (Three.js is browser-only)
 const BunnyCanvas = dynamic(() => import("../three/BunnyModel"), {
@@ -39,12 +40,13 @@ const infoItems = [
 ];
 
 export default function About() {
+  const { isDark } = useTheme();
   return (
     <section id="about" className="py-24 px-6 relative overflow-hidden">
       {/* Background decoration */}
       <div
         className="absolute -top-20 -left-20 w-80 h-80 rounded-full opacity-20 blur-3xl pointer-events-none"
-        style={{ background: "radial-gradient(circle, #FFC0CB, transparent)" }}
+        style={{ background: isDark ? "radial-gradient(circle, #8B0000, transparent)" : "radial-gradient(circle, #FFC0CB, transparent)" }}
       />
 
       <div className="max-w-7xl mx-auto">
@@ -95,10 +97,10 @@ export default function About() {
                 {infoItems.map((item) => (
                   <div
                     key={item.label}
-                    className="flex items-start gap-3 p-4 rounded-2xl"
+                    className="flex items-start gap-3 p-4 rounded-2xl transition-colors duration-500"
                     style={{
-                      background: "rgba(255, 192, 203, 0.12)",
-                      border: "1px solid rgba(255, 192, 203, 0.25)",
+                      background: isDark ? "rgba(139,0,0,0.14)" : "rgba(255, 192, 203, 0.12)",
+                      border: isDark ? "1px solid rgba(139,0,0,0.28)" : "1px solid rgba(255, 192, 203, 0.25)",
                     }}
                   >
                     <div className="w-8 h-8 rounded-xl bg-rose-gold/15 flex items-center justify-center shrink-0 mt-0.5">
@@ -159,12 +161,12 @@ export default function About() {
             <div
               className="relative rounded-3xl overflow-hidden"
               style={{
-                background: "rgba(255, 248, 240, 0.3)",
+                background: isDark ? "rgba(10,0,0,0.6)" : "rgba(255, 248, 240, 0.3)",
                 backdropFilter: "blur(10px)",
-                border: "1px solid rgba(255, 192, 203, 0.3)",
+                border: isDark ? "1px solid rgba(139,0,0,0.3)" : "1px solid rgba(255, 192, 203, 0.3)",
               }}
             >
-              <BunnyCanvas />
+              <BunnyCanvas isDark={isDark} />
 
               {/* Label */}
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
@@ -180,9 +182,9 @@ export default function About() {
               transition={{ duration: 4, repeat: Infinity }}
               className="absolute -bottom-4 -right-4 w-24 h-24 rounded-2xl flex items-center justify-center text-3xl shadow-glass"
               style={{
-                background: "rgba(255, 248, 240, 0.85)",
+                background: isDark ? "rgba(10,0,0,0.88)" : "rgba(255, 248, 240, 0.85)",
                 backdropFilter: "blur(12px)",
-                border: "1px solid rgba(255, 192, 203, 0.4)",
+                border: isDark ? "1px solid rgba(139,0,0,0.4)" : "1px solid rgba(255, 192, 203, 0.4)",
               }}
             >
               🐰

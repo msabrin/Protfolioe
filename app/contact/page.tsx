@@ -8,17 +8,12 @@ import {
   Phone,
   MapPin,
   Sparkles,
-  CheckCircle,
+  MessageCircle,
 } from "lucide-react";
+import { useTheme } from "@/components/global/ThemeProvider";
 
 const inputClass =
   "w-full px-5 py-4 rounded-2xl font-sans text-sm text-rose-deep placeholder-rose-gold/50 outline-none transition-all duration-300 focus:ring-2 focus:ring-pink-blush/60";
-
-const inputStyle = {
-  background: "rgba(255, 248, 240, 0.6)",
-  backdropFilter: "blur(10px)",
-  border: "1px solid rgba(255, 192, 203, 0.4)",
-};
 
 const contactInfo = [
   {
@@ -29,9 +24,9 @@ const contactInfo = [
   },
   {
     icon: Phone,
-    label: "Phone",
-    value: "+880 1X-XXXX-XXXX",
-    href: "tel:+8801XXXXXXXXX",
+    label: "WhatsApp",
+    value: "+880 134-163-0469",
+    href: "https://wa.me/8801341630469",
   },
   {
     icon: MapPin,
@@ -42,6 +37,7 @@ const contactInfo = [
 ];
 
 export default function ContactPage() {
+  const { isDark } = useTheme();
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -58,8 +54,17 @@ export default function ContactPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: wire up actual form submission (e.g., Resend, Formspree, EmailJS)
+    const text = `Hello! My name is ${form.name}. Subject: ${form.subject}. Message: ${form.message}`;
+    const url = `https://wa.me/8801341630469?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
     setSubmitted(true);
+  };
+
+  const inputStyle = {
+    background: isDark ? "rgba(10, 0, 0, 0.6)" : "rgba(255, 248, 240, 0.6)",
+    backdropFilter: "blur(10px)",
+    border: isDark ? "1px solid rgba(139, 0, 0, 0.4)" : "1px solid rgba(255, 192, 203, 0.4)",
+    color: isDark ? "#e2e2e2" : undefined,
   };
 
   return (
@@ -67,11 +72,11 @@ export default function ContactPage() {
       {/* Background orbs */}
       <div
         className="fixed top-20 left-10 w-72 h-72 rounded-full opacity-20 blur-3xl pointer-events-none"
-        style={{ background: "radial-gradient(circle, #FFC0CB, transparent)" }}
+        style={{ background: isDark ? "radial-gradient(circle, #8B0000, transparent)" : "radial-gradient(circle, #FFC0CB, transparent)" }}
       />
       <div
         className="fixed bottom-20 right-10 w-80 h-80 rounded-full opacity-15 blur-3xl pointer-events-none"
-        style={{ background: "radial-gradient(circle, #F0C060, transparent)" }}
+        style={{ background: isDark ? "radial-gradient(circle, #B22222, transparent)" : "radial-gradient(circle, #F0C060, transparent)" }}
       />
 
       <div className="max-w-5xl mx-auto">
@@ -112,7 +117,7 @@ export default function ContactPage() {
               >
                 <div
                   className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-                  style={{ background: "linear-gradient(135deg, #FFD6E0, #FFF3E8)" }}
+                  style={{ background: isDark ? "linear-gradient(135deg, #3a0000, #1a0000)" : "linear-gradient(135deg, #FFD6E0, #FFF3E8)" }}
                 >
                   <info.icon size={18} className="text-rose-gold" />
                 </div>
@@ -155,27 +160,61 @@ export default function ContactPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   className="text-center py-12"
                 >
+                  {/* Sparkle burst */}
+                  <div className="relative inline-block mb-4">
+                    {["✨", "🌟", "✨", "💫", "✨"].map((s, i) => (
+                      <motion.span
+                        key={i}
+                        className="absolute text-xl"
+                        initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
+                        animate={{
+                          opacity: [0, 1, 0],
+                          scale: [0, 1.3, 0],
+                          x: Math.cos((i / 5) * Math.PI * 2) * 55,
+                          y: Math.sin((i / 5) * Math.PI * 2) * 55,
+                        }}
+                        transition={{ duration: 1.2, delay: i * 0.15, repeat: 2, repeatDelay: 0.8 }}
+                      >
+                        {s}
+                      </motion.span>
+                    ))}
+                    <motion.div
+                      animate={{ scale: [1, 1.18, 1], rotate: [0, 8, -8, 0] }}
+                      transition={{ duration: 1.2, repeat: 2 }}
+                      className="text-6xl"
+                    >
+                      💬
+                    </motion.div>
+                  </div>
+
                   <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 1, repeat: 2 }}
-                    className="text-6xl mb-4"
+                    animate={{ opacity: [0.6, 1, 0.6] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                    className="flex items-center justify-center gap-2 mb-3"
                   >
-                    🌸
+                    <MessageCircle size={22} className="text-[#25D366]" />
+                    <h3
+                      className="font-serif text-2xl font-bold"
+                      style={{ color: isDark ? "#D4AF37" : "#25D366" }}
+                    >
+                      Redirecting to WhatsApp...
+                    </h3>
                   </motion.div>
-                  <CheckCircle size={40} className="text-rose-gold mx-auto mb-4" />
-                  <h3 className="font-serif text-2xl font-bold text-rose-deep mb-2">
-                    Message Sent!
-                  </h3>
-                  <p className="font-sans text-rose-gold/80 text-sm">
-                    Thank you for reaching out. I&apos;ll get back to you with sparkles soon ✨
+
+                  <p className="font-sans text-rose-gold/80 text-sm mb-1">
+                    A new tab should open with your message pre-filled ✨
                   </p>
+                  <p className="font-sans text-rose-gold/50 text-xs mb-6">
+                    If it didn&apos;t open, check your pop-up blocker.
+                  </p>
+
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => { setSubmitted(false); setForm({ name: "", email: "", subject: "", message: "" }); }}
-                    className="btn-primary mt-6 text-sm"
+                    className="btn-primary mt-2 text-sm"
                   >
-                    Send Another
+                    Send Another 🌸
                   </motion.button>
                 </motion.div>
               ) : (

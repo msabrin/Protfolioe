@@ -5,6 +5,7 @@ import FloatingStickers from "@/components/global/FloatingStickers";
 import BackgroundLines from "@/components/global/BackgroundLines";
 import GoToTopButton from "@/components/global/GoToTopButton";
 import BackToHomeButton from "@/components/global/BackToHomeButton";
+import { ThemeProvider } from "@/components/global/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "Mirza Sabrin ✨",
@@ -34,23 +35,25 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen relative" suppressHydrationWarning>
-        {/* Thin flowing decorative lines — lowest layer */}
-        <BackgroundLines />
+        <ThemeProvider>
+          {/* Thin flowing decorative lines — lowest layer */}
+          <BackgroundLines />
 
-        {/* Ambient floating stickers */}
-        <FloatingStickers />
+          {/* Ambient floating stickers */}
+          <FloatingStickers />
 
-        {/* Sticky navbar */}
-        <Navbar />
+          {/* Sticky navbar */}
+          <Navbar />
 
-        {/* Main page content */}
-        <div className="relative" style={{ zIndex: 2 }}>
-          {children}
-        </div>
+          {/* Main page content */}
+          <div className="relative" style={{ zIndex: 2 }}>
+            {children}
+          </div>
 
-        {/* Global floating action buttons */}
-        <GoToTopButton />
-        <BackToHomeButton />
+          {/* Global floating action buttons */}
+          <GoToTopButton />
+          <BackToHomeButton />
+        </ThemeProvider>
       </body>
     </html>
   );

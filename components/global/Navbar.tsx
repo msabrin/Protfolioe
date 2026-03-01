@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Sparkles } from "lucide-react";
+import { Menu, X, Sparkles, Moon, Sun } from "lucide-react";
+import { useTheme } from "./ThemeProvider";
 
 const navLinks = [
   { label: "Home", href: "/#home" },
@@ -21,6 +22,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const pathname = usePathname();
+  const { isDark, toggle } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -53,10 +55,13 @@ export default function Navbar() {
         }`}
         style={{
           background: scrolled
-            ? "rgba(255, 248, 240, 0.85)"
-            : "rgba(255, 255, 255, 0.1)",
+            ? isDark ? "rgba(0, 0, 0, 0.92)" : "rgba(255, 248, 240, 0.85)"
+            : isDark ? "rgba(0, 0, 0, 0.15)" : "rgba(255, 255, 255, 0.1)",
           backdropFilter: "blur(20px)",
-          borderBottom: scrolled ? "1px solid rgba(255,192,203,0.3)" : "none",
+          borderBottom: scrolled
+            ? `1px solid ${isDark ? "rgba(139,0,0,0.45)" : "rgba(255,192,203,0.3)"}`
+            : "none",
+          transition: "background 0.5s ease, border-color 0.5s ease",
         }}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
@@ -107,6 +112,25 @@ export default function Navbar() {
                 </li>
               );
             })}
+            {/* Theme toggle */}
+            <li>
+              <motion.button
+                onClick={toggle}
+                whileHover={{ scale: 1.12, rotate: 15 }}
+                whileTap={{ scale: 0.9 }}
+                aria-label="Toggle dark mode"
+                style={{
+                  color: isDark ? "#D4AF37" : undefined,
+                  borderColor: isDark ? "rgba(139,0,0,0.45)" : undefined,
+                  background: isDark ? "rgba(139,0,0,0.15)" : undefined,
+                  transition: "all 0.5s ease",
+                }}
+                className="p-2 rounded-xl glass-pink text-rose-gold"
+              >
+                {isDark ? <Sun size={18} /> : <Moon size={18} />}
+              </motion.button>
+            </li>
+
             <li>
               <Link href="/contact">
                 <motion.button
@@ -120,14 +144,30 @@ export default function Navbar() {
             </li>
           </ul>
 
-          {/* Mobile hamburger */}
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden text-rose-gold p-2 rounded-xl glass-pink"
-          >
-            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-          </motion.button>
+          {/* Mobile: theme toggle + hamburger */}
+          <div className="md:hidden flex items-center gap-2">
+            <motion.button
+              onClick={toggle}
+              whileTap={{ scale: 0.9 }}
+              aria-label="Toggle dark mode"
+              style={{
+                color: isDark ? "#D4AF37" : undefined,
+                borderColor: isDark ? "rgba(139,0,0,0.45)" : undefined,
+                background: isDark ? "rgba(139,0,0,0.15)" : undefined,
+                transition: "all 0.5s ease",
+              }}
+              className="text-rose-gold p-2 rounded-xl glass-pink"
+            >
+              {isDark ? <Sun size={20} /> : <Moon size={20} />}
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="text-rose-gold p-2 rounded-xl glass-pink"
+            >
+              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+            </motion.button>
+          </div>
         </div>
       </motion.nav>
 
@@ -141,10 +181,13 @@ export default function Navbar() {
             transition={{ duration: 0.3, ease: "easeOut" }}
             className="fixed top-[68px] left-4 right-4 z-40 rounded-3xl overflow-hidden"
             style={{
-              background: "rgba(255, 248, 240, 0.95)",
+              background: isDark ? "rgba(5, 0, 0, 0.96)" : "rgba(255, 248, 240, 0.95)",
               backdropFilter: "blur(24px)",
-              border: "1px solid rgba(255, 192, 203, 0.4)",
-              boxShadow: "0 20px 60px rgba(183, 110, 121, 0.2)",
+              border: isDark ? "1px solid rgba(139,0,0,0.4)" : "1px solid rgba(255, 192, 203, 0.4)",
+              boxShadow: isDark
+                ? "0 20px 60px rgba(139, 0, 0, 0.3)"
+                : "0 20px 60px rgba(183, 110, 121, 0.2)",
+              transition: "background 0.5s ease, border 0.5s ease, box-shadow 0.5s ease",
             }}
           >
             <ul className="flex flex-col p-4 gap-1">

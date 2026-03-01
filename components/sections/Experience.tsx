@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 import { motion, useScroll, useTransform, MotionValue } from "framer-motion";
+import { useTheme } from "@/components/global/ThemeProvider";
+import { THEME_CONFIG } from "@/components/global/ThemeConfig";
 import { Briefcase, ExternalLink, Calendar, Building2 } from "lucide-react";
 
 /*
@@ -14,19 +16,17 @@ import { Briefcase, ExternalLink, Calendar, Building2 } from "lucide-react";
   ║  SVG layer 5 — foreground leaf accents                          ║
   ║  HTML overlay — experience cards (position:absolute, z:10→60)   ║
   ║                                                                  ║
-  ║  SCROLL PINNING: 600vh container, inner sticky = 100vh          ║
-  ║  → 500vh scroll distance → scrollYProgress 0 → 1               ║
+  ║  SCROLL PINNING: 800vh container, inner sticky = 100vh          ║
+  ║  → 700vh scroll distance → scrollYProgress 0 → 1               ║
   ║  IMPORTANT: section uses overflowX:"clip" (not "hidden") so     ║
   ║  CSS does NOT force overflow-y to "auto", which would create a  ║
   ║  scroll container and silently break position:sticky.           ║
-  ║  0 %–60 %: tree grows (all transforms × 0.6)                   ║
-  ║  60%–100%: 200 vh "freeze frame" — tree stays fully grown       ║
+  ║  0 %–70 %: tree grows (all thresholds × 14/9 vs old design)    ║
+  ║  70%–100%: "freeze frame" — tree stays fully grown              ║
   ║                                                                  ║
-  ║  CARD POP THRESHOLDS (fire at 80% of branch growth)            ║
-  ║  Card 1 upper-left:  0.305 → 0.390   (branch [0.180, 0.336])   ║
-  ║  Card 2 upper-right: 0.329 → 0.414   (branch [0.204, 0.360])   ║
-  ║  Card 3 lower-left:  0.444 → 0.529   (branch [0.348, 0.468])   ║
-  ║  Card 4 lower-right: 0.468 → 0.553   (branch [0.372, 0.492])   ║
+  ║  CARD POP THRESHOLDS (fire at 90% of branch growth)            ║
+  ║  Card 1/2 upper: 0.439 → 0.513   (branch1 [0.187, 0.467])      ║
+  ║  Card 3/4 lower: 0.625 → 0.700   (branch2 [0.373, 0.653])      ║
   ╚══════════════════════════════════════════════════════════════════╝
 */
 
@@ -63,7 +63,7 @@ const experiences: Exp[] = [
     emoji: "👑",
     tags: ["Leadership", "Branding", "Strategy"],
     link: null,
-    left: "1%", top: "3%",
+    left: "23%", top: "-35%",
     origin: "top left",
     popRange: [0.54, 0.68],
   },
@@ -79,7 +79,7 @@ const experiences: Exp[] = [
     emoji: "💻",
     tags: ["IT Management", "Networking", "Support"],
     link: null,
-    right: "1%", top: "3%",
+    right: "20%", top: "-35%",
     origin: "top right",
     popRange: [0.58, 0.72],
   },
@@ -95,7 +95,7 @@ const experiences: Exp[] = [
     emoji: "🌐",
     tags: ["Next.js", "Tailwind CSS", "UI/UX"],
     link: "https://glorious-restaurant.vercel.app",
-    left: "1%", top: "47%",
+    left: "5%", top: "-1%",
     origin: "bottom left",
     popRange: [0.77, 0.89],
   },
@@ -111,18 +111,56 @@ const experiences: Exp[] = [
     emoji: "⛸️",
     tags: ["Coaching", "Athletics", "Leadership"],
     link: null,
-    right: "1%", top: "47%",
+    right: "5%", top: "6%",
     origin: "bottom right",
     popRange: [0.81, 0.93],
   },
 ];
+
+/* ─── Fruit theme per card id ────────────────────────────────────────────── */
+const fruitTheme: Record<number, {
+  gradient: string;
+  glowColor: string;
+  borderColor: string;
+  headerGradient: string;
+  fruitBg: string;
+}> = {
+  1: {
+    gradient: "linear-gradient(135deg, rgba(255,248,220,0.96) 0%, rgba(255,238,180,0.92) 100%)",
+    glowColor: "rgba(212,168,67,0.60)",
+    borderColor: "rgba(212,168,67,0.50)",
+    headerGradient: "linear-gradient(135deg, rgba(212,168,67,0.20) 0%, rgba(255,200,50,0.10) 100%)",
+    fruitBg: "linear-gradient(135deg, #c41313ff 0%, #DAA520 85%)",
+  },
+  2: {
+    gradient: "linear-gradient(135deg, rgba(255,240,243,0.96) 0%, rgba(255,210,220,0.92) 100%)",
+    glowColor: "rgba(183,110,121,0.55)",
+    borderColor: "rgba(183,110,121,0.45)",
+    headerGradient: "linear-gradient(135deg, rgba(183,110,121,0.20) 0%, rgba(255,182,193,0.10) 100%)",
+    fruitBg: "linear-gradient(135deg, #c41313ff 0%, #DAA520 70%)",
+  },
+  3: {
+    gradient: "linear-gradient(135deg, rgba(240,255,244,0.96) 0%, rgba(200,245,215,0.92) 100%)",
+    glowColor: "rgba(74,160,96,0.50)",
+    borderColor: "rgba(74,160,96,0.40)",
+    headerGradient: "linear-gradient(135deg, rgba(74,160,96,0.20) 0%, rgba(144,238,144,0.10) 100%)",
+    fruitBg: "linear-gradient(135deg, #c41313ff 0%, #DAA520 80%)",
+  },
+  4: {
+    gradient: "linear-gradient(135deg, rgba(248,240,255,0.96) 0%, rgba(220,200,255,0.92) 100%)",
+    glowColor: "rgba(147,112,219,0.50)",
+    borderColor: "rgba(147,112,219,0.40)",
+    headerGradient: "linear-gradient(135deg, rgba(147,112,219,0.20) 0%, rgba(200,180,255,0.10) 100%)",
+    fruitBg: "linear-gradient(135deg, #c41313ff 0%, #DAA520 80%)",
+  },
+};
 
 /* ─── Desktop Experience Card ────────────────────────────────────────────── */
 function ExperienceCard({
   exp,
   cardOpacity,
   cardScale,
-  isAnyHovered,
+  isAnyHovered: _isAnyHovered,
   isHovered,
   onHoverStart,
   onHoverEnd,
@@ -135,104 +173,144 @@ function ExperienceCard({
   onHoverStart: () => void;
   onHoverEnd: () => void;
 }) {
+  const theme = fruitTheme[exp.id];
+
   return (
-    /*
-      Outer wrapper — controls scroll-driven entry (opacity + scale).
-      Uses exp.origin as transformOrigin so the card "pops out"
-      from the corner nearest its branch.
-      z-index jumps immediately to 50 on hover via React state.
-    */
+    /* Outer wrapper — scroll-driven entry (opacity + scale). */
     <motion.div
       style={{
         position: "absolute",
         left: exp.left,
         right: exp.right,
         top: exp.top,
-        width: 200,
         opacity: cardOpacity,
         scale: cardScale,
         transformOrigin: exp.origin,
-        zIndex: isHovered ? 60 : 10,
+        zIndex: isHovered ? 80 : 15,
         willChange: "transform, opacity",
       }}
     >
-      {/*
-        Inner wrapper — hover scale (separate from scroll scale to avoid
-        MotionValue conflicts). box-shadow + filter via CSS transition
-        (faster than Framer Motion for complex CSS strings).
-      */}
+      {/* Pulsing glow ring — pulses in circle mode, fades out on expand */}
+      <motion.div
+        animate={
+          isHovered
+            ? { scale: 1, opacity: 0 }
+            : { scale: [1, 1.55, 1], opacity: [0.55, 0, 0.55] }
+        }
+        transition={
+          isHovered
+            ? { duration: 0.2 }
+            : { duration: 2.2, repeat: Infinity, ease: "easeInOut" }
+        }
+        style={{
+          position: "absolute",
+          inset: -8,
+          borderRadius: "9999px",
+          background: `radial-gradient(circle, ${theme.glowColor}, transparent 70%)`,
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Morphing fruit → card */}
       <motion.div
         animate={{
-          scale: isHovered ? 1.22 : 1,
-          opacity: isAnyHovered && !isHovered ? 0.5 : 1,
+          width: isHovered ? 780 : 56,
+          height: isHovered ? 620 : 56,
+          borderRadius: isHovered ? 20 : 9999,
         }}
-        transition={{ duration: 0.24, ease: [0.25, 0.46, 0.45, 0.94] }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
         style={{
-          transformOrigin: "center",
-          borderRadius: 16,
           overflow: "hidden",
-          /* CSS transitions handle shadow + blur (string values) */
+          background: isHovered ? theme.gradient : theme.fruitBg,
+          border: `1.5px solid ${theme.borderColor}`,
           boxShadow: isHovered
-            ? "0 24px 64px rgba(139,74,82,0.38), 0 0 0 2px rgba(212,168,67,0.65)"
-            : "0 6px 20px rgba(183,110,121,0.18)",
-          filter:
-            isAnyHovered && !isHovered ? "blur(1px) brightness(0.8)" : "none",
-          transition: "box-shadow 0.24s ease, filter 0.24s ease",
+            ? `0 20px 60px ${theme.glowColor}, 0 0 0 2px ${theme.borderColor}`
+            : `0 4px 16px ${theme.glowColor}`,
+          backdropFilter: isHovered ? "blur(18px)" : "none",
+          WebkitBackdropFilter: isHovered ? "blur(18px)" : "none",
+          cursor: "pointer",
+          position: "relative",
+          transition: "background 0.3s ease, box-shadow 0.3s ease",
         }}
         onHoverStart={onHoverStart}
         onHoverEnd={onHoverEnd}
-        className="cursor-pointer"
       >
-        <div
-          className="p-4 premium-border rounded-2xl"
+        {/* Emoji — visible as circle, fades out when expanding */}
+        <motion.div
+          animate={{ opacity: isHovered ? 0 : 1 }}
+          transition={{ duration: isHovered ? 0.08 : 0.22, delay: isHovered ? 0 : 0.18 }}
           style={{
-            background:
-              "linear-gradient(135deg, rgba(255,255,255,0.90) 0%, rgba(255,240,243,0.75) 100%)",
-            backdropFilter: "blur(18px)",
-            WebkitBackdropFilter: "blur(18px)",
-            border: "1px solid rgba(255,192,203,0.40)",
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 24,
+            pointerEvents: "none",
           }}
         >
+          {exp.emoji}
+        </motion.div>
+
+        {/* Card content — fades in after morphing finishes */}
+        <motion.div
+          animate={{ opacity: isHovered ? 1 : 0 }}
+          transition={{ duration: 0.22, delay: isHovered ? 0.18 : 0 }}
+          style={{
+            position: "absolute",
+            inset: 0,
+            padding: 16,
+            overflowY: "auto",
+            pointerEvents: isHovered ? "auto" : "none",
+          }}
+        >
+          {/* Header tint */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0, left: 0, right: 0, height: 52,
+              background: theme.headerGradient,
+              borderRadius: "20px 20px 0 0",
+              pointerEvents: "none",
+            }}
+          />
+
           {/* Badge + emoji */}
-          <div className="flex items-center justify-between mb-2">
-            <span
-              className={`px-2 py-0.5 rounded-full text-xs font-sans font-medium ${exp.badgeColor}`}
-            >
+          <div className="flex items-center justify-between mb-2 relative">
+            <span className={`px-2 py-0.5 rounded-full text-[20px] font-sans font-medium ${exp.badgeColor}`}>
               {exp.badge}
             </span>
-            <span className="text-xl leading-none">{exp.emoji}</span>
+            <span className="text-[40px] leading-none">{exp.emoji}</span>
           </div>
 
           {/* Role */}
-          <h3 className="font-serif text-sm font-bold text-rose-deep leading-tight mb-1">
+          <h3 className="font-serif text-[30px] font-bold text-rose-deep leading-tight mb-1 relative">
             {exp.role}
           </h3>
 
           {/* Company */}
-          <div className="flex items-center gap-1 text-rose-gold mb-0.5">
-            <Building2 size={10} />
-            <span className="font-sans text-xs font-medium leading-tight">
-              {exp.company}
-            </span>
+          <div className="flex items-center gap-1 text-rose-gold mb-0.5 relative">
+            <Building2 size={20} />
+            <span className="font-sans text-[20px] font-medium leading-tight">{exp.company}</span>
           </div>
 
           {/* Duration */}
-          <div className="flex items-center gap-1 text-rose-gold/60 mb-2.5">
-            <Calendar size={10} />
-            <span className="font-sans text-xs">{exp.duration}</span>
+          <div className="flex items-center gap-1 text-rose-gold/60 mb-2.5 relative">
+            <Calendar size={15} />
+            <span className="font-sans text-[15px]">{exp.duration}</span>
           </div>
 
           {/* Description */}
-          <p className="font-sans text-xs text-rose-deep/65 leading-relaxed mb-2.5 line-clamp-3">
+          <p className="font-sans text-[25px] text-rose-deep/65 leading-relaxed mb-2.5 line-clamp-4 relative">
             {exp.description}
           </p>
 
           {/* Tags */}
-          <div className="flex flex-wrap gap-1 mb-2">
+          <div className="flex flex-wrap gap-1 mb-2 relative">
             {exp.tags.slice(0, 2).map((tag) => (
               <span
                 key={tag}
-                className="px-1.5 py-0.5 rounded-full text-xs font-sans bg-pink-blush/20 text-rose-gold border border-pink-blush/30"
+                className="px-1.5 py-0.5 rounded-full text-[20px] font-sans bg-pink-blush/20 text-rose-gold border border-pink-blush/30"
               >
                 {tag}
               </span>
@@ -246,12 +324,12 @@ function ExperienceCard({
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-1 text-xs font-sans font-medium text-rose-gold hover:text-rose-deep transition-colors duration-200"
+              className="inline-flex items-center gap-1 text-xs font-sans font-medium text-rose-gold hover:text-rose-deep transition-colors duration-200 relative"
             >
               View <ExternalLink size={10} />
             </a>
           )}
-        </div>
+        </motion.div>
       </motion.div>
     </motion.div>
   );
@@ -327,29 +405,126 @@ function MobileCard({ exp, index }: { exp: Exp; index: number }) {
    to a stop as it reaches its tip (feels organic, not mechanical).        */
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
-/* ─── Bush canopy placement data ─────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   TREE LAYOUT CONFIGS — light and dark are fully independent.
+   Edit the values in the matching theme block to reposition / resize.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Trunk ─────────────────────────────────────────────────────────────── */
+const TRUNK_CFG = {
+  light: { width: "13.71%", height: "77.31%" },
+  dark:  { width: "13.71%", height: "25%" },
+} as const;
+
+/* ─── Branches ───────────────────────────────────────────────────────────── */
+/*  scaleGroup 1 → upper pair  (branch1ScaleX / branch1Opacity)               */
+/*  scaleGroup 2 → lower pair  (branch2ScaleX / branch2Opacity)               */
+type BranchDef = {
+  anchorSide: "right" | "left";
+  anchor: string;
+  top: string;
+  width: string;
+  height: string;
+  rotate: number;
+  transformOrigin: "right center" | "left center";
+  img: "branchLeft" | "branchRight";
+  objPos: "right center" | "left center";
+  scaleGroup: 1 | 2;
+};
+const BRANCH_CFG: { light: BranchDef[]; dark: BranchDef[] } = {
+  light: [
+    { anchorSide: "right", anchor: "45%", top: "0%", width: "40%", height: "100%", rotate:  10, transformOrigin: "right center", img: "branchLeft",  objPos: "right center", scaleGroup: 1 },
+    { anchorSide: "left",  anchor: "40%", top: "0%", width: "45%", height: "100%", rotate: -12, transformOrigin: "left center",  img: "branchRight", objPos: "left center",  scaleGroup: 1 },
+    { anchorSide: "right", anchor: "55%", top: "5%", width: "40%", height: "80%",  rotate: -25, transformOrigin: "right center", img: "branchLeft",  objPos: "right center", scaleGroup: 2 },
+    { anchorSide: "left",  anchor: "50%", top: "5%", width: "70%", height: "65%",  rotate:  25, transformOrigin: "left center",  img: "branchRight", objPos: "left center",  scaleGroup: 2 },
+  ],
+  dark: [
+    { anchorSide: "right", anchor: "45%", top: "-3%", width: "45%", height: "100%", rotate:  2, transformOrigin: "right center", img: "branchLeft",  objPos: "right center", scaleGroup: 1 },
+    { anchorSide: "left",  anchor: "40%", top: "0%", width: "45%", height: "100%", rotate: -12, transformOrigin: "left center",  img: "branchRight", objPos: "left center",  scaleGroup: 1 },
+    { anchorSide: "right", anchor: "55%", top: "5%", width: "46%", height: "80%",  rotate: -35, transformOrigin: "right center", img: "branchLeft",  objPos: "right center", scaleGroup: 2 },
+    { anchorSide: "left",  anchor: "50%", top: "5%", width: "90%", height: "75%",  rotate:  25, transformOrigin: "left center",  img: "branchRight", objPos: "left center",  scaleGroup: 2 },
+  ],
+};
+
+/* ─── Bush canopy layers ─────────────────────────────────────────────────── */
 /*  Positions are % of the 700 × 520 canvas.                                  */
-/*  upper:true  → synced to branch1 (upper pair  0.120–0.300)                 */
-/*  upper:false → synced to branch2 (lower pair  0.240–0.420)                 */
-/*  z: -3       → behind branches  /  z: 2 → in front of trunk, behind SVG   */
-const bushLayers: Array<{
+/*  upper:true  → synced to branch1 (upper pair  0.187–0.467)                 */
+/*  upper:false → synced to branch2 (lower pair  0.373–0.653)                 */
+/*  z: -3 → behind branches  /  z: 2 → in front of trunk, behind SVG         */
+type BushDef = {
   id: number; upper: boolean; z: number;
   top: string; w: string; rot: number;
   left?: string; right?: string;
-}> = [
-  // ═══ BACK LAYER — large, form broad umbrella silhouette ════════════════
-  { id:1, upper:true,  z:-3, left:"-5%",  top:"-40%",  w:"42%", rot:-4 }, // crown centre-back
-  { id:2, upper:true,  z:-3, left:"6%",  top:"-60%",  w:"42%", rot: 9 }, // upper-left wide sweep
-  { id:3, upper:true,  z:-3, right:"23%", top:"-68%",  w:"42%", rot:-9 }, // upper-right wide sweep
-  { id:4, upper:false, z:-3, left:"10%",  top:"-8%", w:"38%", rot: 5 }, // lower-left umbrella rim
-  { id:5, upper:false, z:-3, right:"-1%", top:"-48%", w:"44%", rot:-6 }, // lower-right umbrella rim
-  { id:10, upper:false, z:-3, right:"-8%", top:"-18%", w:"44%", rot:-6 }, // lower-right umbrella rim
-  // ═══ FRONT LAYER — smaller depth accents at junctions ══════════════════
-  { id:6, upper:true,  z: 2, left:"35%",  top:"-10%", w:"30%", rot: 3 }, // crown front centre
-  { id:7, upper:true,  z: -3, left:"-10%",   top:"-10%", w:"38%", rot:-5 }, // left junction
-  { id:8, upper:true,  z: -3, right:"-8%",  top:"-12%", w:"38%", rot: 6 }, // right junction
-  { id:9, upper:false,  z:-2, left:"25%",  top:"-23%", w:"50%", rot: 3 }, 
-];
+};
+const BUSH_CFG: { light: BushDef[]; dark: BushDef[] } = {
+  light: [
+    { id: 1, upper: true, z: -3, left: "-5%",  top: "-40%", w: "42%", rot: -4 },
+    { id: 2, upper: true, z: -3, left:  "6%",  top: "-60%", w: "42%", rot:  9 },
+    { id: 3, upper: true, z: -3, right:"23%",  top: "-68%", w: "42%", rot: -9 },
+    { id: 4, upper: true, z: -3, left: "10%",  top:  "-8%", w: "38%", rot:  5 },
+    { id: 5, upper: true, z: -3, right: "-1%", top: "-48%", w: "44%", rot: -6 },
+    { id: 6, upper: true, z: -3, right: "-8%", top: "-18%", w: "44%", rot: -6 },
+    { id: 7, upper: true, z:  2, left: "35%",  top: "-10%", w: "30%", rot:  3 },
+    { id: 8, upper: true, z: -3, left:"-10%",  top: "-10%", w: "38%", rot: -5 },
+    { id: 9, upper: true, z: -3, right: "-8%", top: "-12%", w: "38%", rot:  6 },
+    { id:10, upper: true, z: -2, left: "25%",  top: "-23%", w: "50%", rot:  3 },
+  ],
+  dark: [
+    { id: 1, upper: true, z: -3, left: "-5%",  top: "-40%", w: "42%", rot: -4 },
+    { id: 2, upper: true, z: -3, left:  "6%",  top: "-60%", w: "42%", rot:  9 },
+    { id: 3, upper: true, z: -3, right:"23%",  top: "-68%", w: "42%", rot: -9 },
+    { id: 4, upper: true, z: -3, left: "10%",  top:  "-8%", w: "38%", rot:  5 },
+    { id: 5, upper: true, z: -3, right: "-1%", top: "-48%", w: "44%", rot: -6 },
+    { id: 6, upper: true, z: -3, right: "-8%", top: "-18%", w: "44%", rot: -6 },
+    { id: 7, upper: true, z:  2, left: "32%",  top: "-10%", w: "33%", rot:  3 },
+    { id: 8, upper: true, z: -3, left:"-10%",  top: "-10%", w: "38%", rot: -5 },
+    { id: 9, upper: true, z: -3, right: "-8%", top: "-12%", w: "38%", rot:  6 },
+    { id:10, upper: true, z: -2, left: "25%",  top: "-23%", w: "50%", rot:  3 },
+  ],
+};
+
+/* ─── Decorative fruits / flowers ────────────────────────────────────────── */
+/*  phase:"branch1" → pops when branch1 hits 70% growth                       */
+/*  phase:"branch2" → pops when branch2 hits 70% growth                       */
+/*  flowerVariant: 0 = flower.png  |  1 = flower1.png  (stable per item)      */
+type FruitDef = {
+  id: number;
+  phase: "branch1" | "branch2";
+  left?: string; right?: string;
+  top: string; z: number;
+  size: number; rot: number; bobDuration: number;
+  flowerVariant: 0 | 1;
+};
+const FRUIT_CFG: { light: FruitDef[]; dark: FruitDef[] } = {
+  light: [
+    { id:  1, phase: "branch1", left:  "20%", top:  "20%", z: 4, size: 48, rot:  12, bobDuration: 3.2, flowerVariant: 1 },
+    { id:  2, phase: "branch1", right: "20%", top:  "40%", z: 4, size: 56, rot:  -8, bobDuration: 2.8, flowerVariant: 0 },
+    { id:  3, phase: "branch1", left:  "20%", top: "-10%", z: 4, size: 49, rot:   5, bobDuration: 3.6, flowerVariant: 1 },
+    { id:  4, phase: "branch1", right: "40%", top: "-32%", z: 4, size: 47, rot: -15, bobDuration: 2.6, flowerVariant: 0 },
+    { id:  5, phase: "branch1", left:  "-5%", top:  "40%", z: 4, size: 49, rot:   8, bobDuration: 3.0, flowerVariant: 1 },
+    { id:  6, phase: "branch1", left:  "35%", top:  "42%", z: 4, size: 39, rot:  -5, bobDuration: 3.8, flowerVariant: 0 },
+    { id:  7, phase: "branch1", right: "-9%", top:  "26%", z: 4, size: 48, rot:  10, bobDuration: 2.9, flowerVariant: 1 },
+    { id:  8, phase: "branch2", left:   "0%", top: "-30%", z: 4, size: 47, rot: -12, bobDuration: 3.4, flowerVariant: 0 },
+    { id:  9, phase: "branch2", right:  "4%", top: "-26%", z: 4, size: 49, rot:   7, bobDuration: 2.7, flowerVariant: 1 },
+    { id: 10, phase: "branch2", left:  "40%", top: "-52%", z: 4, size: 46, rot:  -6, bobDuration: 3.1, flowerVariant: 0 },
+    { id: 11, phase: "branch2", right: "28%", top:  "-5%", z: 4, size: 48, rot:  14, bobDuration: 3.5, flowerVariant: 1 },
+    { id: 12, phase: "branch2", left:  "46%", top:   "8%", z: 4, size: 47, rot:  -3, bobDuration: 2.5, flowerVariant: 0 },
+  ],
+  dark: [
+    { id:  1, phase: "branch1", left:  "20%", top:  "20%", z: 4, size: 68, rot:  12, bobDuration: 3.2, flowerVariant: 0 },
+    { id:  2, phase: "branch1", right: "20%", top:  "40%", z: 4, size: 115, rot:  -8, bobDuration: 2.8, flowerVariant: 1 },
+    { id:  3, phase: "branch1", left:  "20%", top: "-10%", z: 4, size: 69, rot:   5, bobDuration: 3.6, flowerVariant: 0 },
+    { id:  4, phase: "branch1", right: "40%", top: "-32%", z: 4, size: 67, rot: -15, bobDuration: 2.6, flowerVariant: 0 },
+    { id:  5, phase: "branch1", left:  "-5%", top:  "30%", z: 4, size: 69, rot:   8, bobDuration: 3.0, flowerVariant: 0 },
+    { id:  6, phase: "branch1", left:  "35%", top:  "36%", z: 4, size: 59, rot:  -5, bobDuration: 3.8, flowerVariant: 0 },
+    { id:  7, phase: "branch1", right: "-0%", top:  "26%", z: 4, size: 68, rot:  10, bobDuration: 2.9, flowerVariant: 0 },
+    { id:  8, phase: "branch2", left:   "0%", top: "-30%", z: 4, size: 67, rot: -12, bobDuration: 3.4, flowerVariant: 0 },
+    { id:  9, phase: "branch2", right:  "4%", top: "-26%", z: 4, size: 69, rot:   7, bobDuration: 2.7, flowerVariant: 0 },
+    { id: 10, phase: "branch2", left:  "40%", top: "-52%", z: 4, size: 66, rot:  -6, bobDuration: 3.1, flowerVariant: 0 },
+    { id: 11, phase: "branch2", right: "28%", top:  "-5%", z: 4, size: 68, rot:  14, bobDuration: 3.5, flowerVariant: 0 },
+    { id: 12, phase: "branch2", left:  "46%", top:   "8%", z: 4, size: 67, rot:  -3, bobDuration: 2.5, flowerVariant: 0 },
+  ],
+};
 
 /* ─── Main Section ───────────────────────────────────────────────────────── */
 export default function Experience() {
@@ -358,6 +533,7 @@ export default function Experience() {
      make it an implicit scroll container and silently break sticky. */
   const pinRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const { isDark } = useTheme();
 
   const { scrollYProgress } = useScroll({
     target: pinRef,
@@ -368,51 +544,59 @@ export default function Experience() {
     SCROLL TRACK: 1000vh container → 900vh scroll distance.
     All thresholds scaled ×0.6 vs the original 600vh design so the
     physical scroll distance to grow the tree is identical.
-    Tree finishes at scrollYProgress ≈ 0.45 → ~405vh of growth.
-    Remaining ~495vh (0.45→1.0) is pure "stay / read cards" time.
+    Tree finishes at scrollYProgress = 0.70 → ~490vh of growth.
+    Remaining ~210vh (0.70→1.0) is pure "stay / read cards" time.
   */
 
   /* ── Title — fades up and out as tree begins to grow ─────────────────── */
-  const titleOpacity = useTransform(scrollYProgress, [0, 0.025], [1, 0]);
-  const titleY       = useTransform(scrollYProgress, [0, 0.025], [0, -40]);
+  const titleOpacity = useTransform(scrollYProgress, [0, 0.039], [1, 0]);
+  const titleY       = useTransform(scrollYProgress, [0, 0.039], [0, -40]);
 
   /* ── Trunk ───────────────────────────────────────────────────────────── */
-  const trunkScaleY = useTransform(scrollYProgress, [0.000, 0.198], [0.2, 5.0]);
-  const trunkScaleX = useTransform(scrollYProgress, [0.000, 0.162], [0.25, 8.0]);
+  const trunkScaleY = useTransform(scrollYProgress, [0.000, 0.308], [0.2, 5.0]);
+  const trunkScaleX = useTransform(scrollYProgress, [0.000, 0.252], [0.25, 8.0]);
 
   /* ── Branch images ───────────────────────────────────────────────────── */
-  /* 1st pair (upper):   grows 0.120 → 0.300                              */
-  const branch1ScaleX  = useTransform(scrollYProgress, [0.120, 0.300], [0, 1], { ease: easeOutCubic });
-  const branch1Opacity = useTransform(scrollYProgress, [0.120, 0.156], [0, 1]);
-  /* 2nd pair (umbrella): grows 0.240 → 0.420                             */
-  const branch2ScaleX  = useTransform(scrollYProgress, [0.240, 0.420], [0, 1], { ease: easeOutCubic });
-  const branch2Opacity = useTransform(scrollYProgress, [0.240, 0.276], [0, 1]);
+  /* 1st pair (upper):   grows 0.187 → 0.467                              */
+  const branch1ScaleX  = useTransform(scrollYProgress, [0.187, 0.467], [0, 1], { ease: easeOutCubic });
+  const branch1Opacity = useTransform(scrollYProgress, [0.187, 0.243], [0, 1]);
+  /* 2nd pair (umbrella): grows 0.373 → 0.653                             */
+  const branch2ScaleX  = useTransform(scrollYProgress, [0.373, 0.653], [0, 1], { ease: easeOutCubic });
+  const branch2Opacity = useTransform(scrollYProgress, [0.373, 0.429], [0, 1]);
 
   /* ── Bush canopy layers — synced to branch growth ─────────────────────── */
-  /* upper group: blooms exactly with branch1  [0.120 → 0.300]              */
-  const bushUpScale   = useTransform(scrollYProgress, [0.120, 0.300], [0.15, 1], { ease: easeOutCubic });
-  const bushUpOpacity = useTransform(scrollYProgress, [0.120, 0.165], [0, 1]);
-  /* lower group: blooms exactly with branch2  [0.240 → 0.420]              */
-  const bushLoScale   = useTransform(scrollYProgress, [0.240, 0.420], [0.15, 1], { ease: easeOutCubic });
-  const bushLoOpacity = useTransform(scrollYProgress, [0.240, 0.285], [0, 1]);
+  /* upper group: blooms exactly with branch1  [0.187 → 0.467]              */
+  const bushUpScale   = useTransform(scrollYProgress, [0.187, 0.467], [0.15, 1], { ease: easeOutCubic });
+  const bushUpOpacity = useTransform(scrollYProgress, [0.187, 0.257], [0, 1]);
+  /* lower group: blooms exactly with branch2  [0.373 → 0.653]              */
+  const bushLoScale   = useTransform(scrollYProgress, [0.373, 0.653], [0.15, 1], { ease: easeOutCubic });
+  const bushLoOpacity = useTransform(scrollYProgress, [0.373, 0.443], [0, 1]);
 
   /* ── Cards pop at 90% of their branch's growth ──────────────────────── */
-  /* branch1 [0.120,0.300] → 90% = 0.282  (fade window 0.282→0.330)      */
-  /* branch2 [0.240,0.420] → 90% = 0.402  (fade window 0.402→0.450)      */
-  const card1Opacity = useTransform(scrollYProgress, [0.282, 0.330], [0, 1]);
-  const card1Scale   = useTransform(scrollYProgress, [0.282, 0.330], [0.3, 1]);
+  /* branch1 [0.187,0.467] → 90% = 0.439  (fade window 0.439→0.513)      */
+  /* branch2 [0.373,0.653] → 90% = 0.625  (fade window 0.625→0.700)      */
+  const card1Opacity = useTransform(scrollYProgress, [0.439, 0.513], [0, 1]);
+  const card1Scale   = useTransform(scrollYProgress, [0.439, 0.513], [0.3, 1]);
 
-  const card2Opacity = useTransform(scrollYProgress, [0.282, 0.330], [0, 1]);
-  const card2Scale   = useTransform(scrollYProgress, [0.282, 0.330], [0.3, 1]);
+  const card2Opacity = useTransform(scrollYProgress, [0.439, 0.513], [0, 1]);
+  const card2Scale   = useTransform(scrollYProgress, [0.439, 0.513], [0.3, 1]);
 
-  const card3Opacity = useTransform(scrollYProgress, [0.402, 0.450], [0, 1]);
-  const card3Scale   = useTransform(scrollYProgress, [0.402, 0.450], [0.3, 1]);
+  const card3Opacity = useTransform(scrollYProgress, [0.625, 0.700], [0, 1]);
+  const card3Scale   = useTransform(scrollYProgress, [0.625, 0.700], [0.3, 1]);
 
-  const card4Opacity = useTransform(scrollYProgress, [0.402, 0.450], [0, 1]);
-  const card4Scale   = useTransform(scrollYProgress, [0.402, 0.450], [0.3, 1]);
+  const card4Opacity = useTransform(scrollYProgress, [0.625, 0.700], [0, 1]);
+  const card4Scale   = useTransform(scrollYProgress, [0.625, 0.700], [0.3, 1]);
 
   /* ── Subtle fade at end of stay window ──────────────────────────────── */
   const sectionFade  = useTransform(scrollYProgress, [0.95, 1.00], [1, 0.88]);
+
+  /* ── Decorative fruits — pop at 70% of each branch's growth ─────────── */
+  /* branch1 70% = 0.187 + 0.70×(0.467−0.187) = 0.383                     */
+  const dFruit1Scale   = useTransform(scrollYProgress, [0.383, 0.451], [0, 1]);
+  const dFruit1Opacity = useTransform(scrollYProgress, [0.383, 0.451], [0, 1]);
+  /* branch2 70% = 0.373 + 0.70×(0.653−0.373) = 0.569                     */
+  const dFruit2Scale   = useTransform(scrollYProgress, [0.569, 0.638], [0, 1]);
+  const dFruit2Opacity = useTransform(scrollYProgress, [0.569, 0.638], [0, 1]);
 
   const cardTransforms = [
     { opacity: card1Opacity, scale: card1Scale },
@@ -422,6 +606,12 @@ export default function Experience() {
   ];
 
   const isAnyHovered = hoveredId !== null;
+
+  /* ── Active tree configs — swap these two lines to change a theme ─────── */
+  const treeT      = isDark ? TRUNK_CFG.dark  : TRUNK_CFG.light;
+  const bushDefs   = isDark ? BUSH_CFG.dark   : BUSH_CFG.light;
+  const branchDefs = isDark ? BRANCH_CFG.dark : BRANCH_CFG.light;
+  const fruitDefs  = isDark ? FRUIT_CFG.dark  : FRUIT_CFG.light;
 
   /* ── Shared heading ─────────────────────────────────────────────────── */
   const Heading = (
@@ -449,7 +639,7 @@ export default function Experience() {
           Tree starts only after title has left the viewport.
       ════════════════════════════════════════════════════════════════ */}
 
-      <div ref={pinRef} className="hidden md:block" style={{ minHeight: "1200vh" }}>
+      <div ref={pinRef} className="hidden md:block" style={{ minHeight: "600vh" }}>
         <motion.div
           className="sticky top-0 h-screen w-full overflow-hidden"
           style={{
@@ -467,6 +657,22 @@ export default function Experience() {
           <div
             className="absolute -top-16 -left-24 w-80 h-80 rounded-full opacity-10 blur-3xl pointer-events-none"
             style={{ background: "radial-gradient(circle, #FFC0CB, transparent)" }}
+          />
+
+          {/* ── Backdrop blur overlay — dims tree when a fruit is hovered ── */}
+          <motion.div
+            aria-hidden="true"
+            animate={{ opacity: isAnyHovered ? 1 : 0 }}
+            transition={{ duration: 0.28, ease: "easeInOut" }}
+            style={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 30,
+              backdropFilter: "blur(3px) brightness(0.88)",
+              WebkitBackdropFilter: "blur(3px) brightness(0.88)",
+              background: "rgba(139,74,82,0.07)",
+              pointerEvents: "none",
+            }}
           />
 
           {/* ── Title — fades up as user starts scrolling ─────────────── */}
@@ -496,11 +702,7 @@ export default function Experience() {
                 }}
               >
               {/* ── BUSH LEAF CLUSTERS (2.5D canopy) ─────────────── */}
-              {/*  Back (z:-3): behind branches. Front (z:2): ahead of */}
-              {/*  trunk but behind SVG leaf accents and cards.         */}
-              {/*  transformOrigin "50% 100%" blooms each bush upward   */}
-              {/*  from its base — organic, not mechanical.             */}
-              {bushLayers.map((b) => (
+              {bushDefs.map((b) => (
                 <motion.div
                   key={`bush-${b.id}`}
                   style={{
@@ -515,23 +717,34 @@ export default function Experience() {
                     opacity: b.upper ? bushUpOpacity : bushLoOpacity,
                     transformOrigin: "50% 100%",
                     pointerEvents: "none",
-                    filter: "drop-shadow(0 6px 14px rgba(20,60,10,0.28))",
+                    filter: isDark
+                      ? "drop-shadow(0 0 14px rgba(178,34,34,0.65)) drop-shadow(0 6px 14px rgba(20,60,10,0.28))"
+                      : "drop-shadow(0 6px 14px rgba(20,60,10,0.28))",
+                    transition: "filter 0.5s ease",
                     willChange: "transform, opacity",
                   }}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/images/Bush.png"
-                    alt=""
-                    draggable={false}
-                    style={{
-                      width: "100%",
-                      height: "auto",
-                      objectFit: "contain",
-                      display: "block",
-                      userSelect: "none",
-                    }}
-                  />
+                  {/* Cross-fade between light and dark bush images */}
+                  <div style={{ position: "relative", width: "100%", height: "100%" }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <motion.img
+                      src={THEME_CONFIG.light.tree.bush}
+                      alt=""
+                      draggable={false}
+                      animate={{ opacity: isDark ? 0 : 1 }}
+                      transition={{ duration: 0.6 }}
+                      style={{ width: "100%", height: "auto", objectFit: "contain", display: "block", userSelect: "none" }}
+                    />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <motion.img
+                      src={THEME_CONFIG.dark.tree.bush}
+                      alt=""
+                      draggable={false}
+                      animate={{ opacity: isDark ? 1 : 0 }}
+                      transition={{ duration: 0.6 }}
+                      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", display: "block", userSelect: "none" }}
+                    />
+                  </div>
                 </motion.div>
               ))}
 
@@ -542,142 +755,144 @@ export default function Experience() {
                   left: "50%",
                   bottom: 0,
                   x: "-50%",
-                  width: "13.71%",
-                  height: "77.31%",
+                  width: treeT.width,
+                  height: treeT.height,
                   scaleY: trunkScaleY,
                   scaleX: trunkScaleX,
                   transformOrigin: "50% 100%",
                   zIndex: 1,
                   willChange: "transform",
+                  filter: isDark
+                    ? "drop-shadow(0 0 18px rgba(178,34,34,0.55)) drop-shadow(0 0 6px rgba(212,175,55,0.25))"
+                    : "none",
+                  transition: "filter 0.5s ease",
                 }}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/images/trunk.png"
-                  alt=""
-                  draggable={false}
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "contain",
-                    objectPosition: "bottom center",
-                    display: "block",
-                    userSelect: "none",
-                  }}
-                />
+                {/* Cross-fade between light and dark trunk */}
+                <div style={{ position: "absolute", inset: 0 }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <motion.img
+                    src={THEME_CONFIG.light.tree.trunk}
+                    alt=""
+                    draggable={false}
+                    animate={{ opacity: isDark ? 0 : 1 }}
+                    transition={{ duration: 0.6 }}
+                    style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: "100%", objectFit: "contain", objectPosition: "bottom center", display: "block", userSelect: "none" }}
+                  />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <motion.img
+                    src={THEME_CONFIG.dark.tree.trunk}
+                    alt=""
+                    draggable={false}
+                    animate={{ opacity: isDark ? 1 : 0 }}
+                    transition={{ duration: 0.6 }}
+                    style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: "100%", objectFit: "fill", objectPosition: "bottom center", display: "block", userSelect: "none" }}
+                  />
+                </div>
               </motion.div>
 
               {/* ── BRANCH IMAGES ────────────────────────────────── */}
-              {/*
-                z:2 — above trunk (z:1), below SVG leaves (z:3).
-                Left branches: right:"50%" pivot transformOrigin:"right center"
-                Right branches: left:"50%" pivot transformOrigin:"left center"
-                scaleX: 0→1 sprouts outward from the trunk.
-                y:"-50%" centres the div vertically at the top value.
-                1st pair tilts UPWARD (rotate ∓22°), 2nd pair tilts DOWNWARD.
-              */}
+              {/*  Driven by branchDefs (light or dark config).         */}
+              {/*  scaleGroup 1 → branch1ScaleX/Opacity (upper pair)    */}
+              {/*  scaleGroup 2 → branch2ScaleX/Opacity (lower pair)    */}
+              {branchDefs.map((b, i) => (
+                <motion.div
+                  key={`branch-${i}`}
+                  style={{
+                    position: "absolute",
+                    ...(b.anchorSide === "right" ? { right: b.anchor } : { left: b.anchor }),
+                    top: b.top,
+                    y: "-50%",
+                    width: b.width,
+                    height: b.height,
+                    scaleX: b.scaleGroup === 1 ? branch1ScaleX : branch2ScaleX,
+                    opacity: b.scaleGroup === 1 ? branch1Opacity : branch2Opacity,
+                    transformOrigin: b.transformOrigin,
+                    rotate: b.rotate,
+                    zIndex: -2,
+                    pointerEvents: "none",
+                    filter: isDark
+                      ? "drop-shadow(4px 8px 10px rgba(35,15,5,0.35)) drop-shadow(0 0 10px rgba(178,34,34,0.5))"
+                      : "drop-shadow(4px 8px 10px rgba(35,15,5,0.35))",
+                    transition: "filter 0.5s ease",
+                    willChange: "transform, opacity",
+                  }}
+                >
+                  <div style={{ position: "relative", width: "100%", height: "100%" }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <motion.img src={THEME_CONFIG.light.tree[b.img]} alt="" draggable={false}
+                      animate={{ opacity: isDark ? 0 : 1 }} transition={{ duration: 0.6 }}
+                      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", objectPosition: b.objPos, display: "block", userSelect: "none" }} />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <motion.img src={THEME_CONFIG.dark.tree[b.img]} alt="" draggable={false}
+                      animate={{ opacity: isDark ? 1 : 0 }} transition={{ duration: 0.6 }}
+                      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", objectPosition: b.objPos, display: "block", userSelect: "none" }} />
+                  </div>
+                </motion.div>
+              ))}
 
-              {/* 1st pair — upper, faces upward-outward ── */}
-              {/* Upper-left: CCW –22° around right edge → tip goes up-left */}
-              <motion.div
-                style={{
-                  position: "absolute",
-                  right: "45%",
-                  top: "0%",
-                  y: "-50%",
-                  width: "40%",
-                  height: "100%",
-                  scaleX: branch1ScaleX,
-                  opacity: branch1Opacity,
-                  transformOrigin: "right center",
-                  rotate: 10,
-                  zIndex: -2,
-                  pointerEvents: "none",
-                  filter: "drop-shadow(4px 8px 10px rgba(35,15,5,0.35))",
-                  willChange: "transform, opacity",
-                }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/branch-left.png" alt="" draggable={false}
-                  style={{ width: "100%", height: "100%", objectFit: "contain", objectPosition: "right center", display: "block", userSelect: "none" }} />
-              </motion.div>
 
-              {/* Upper-right: CW +22° around left edge → tip goes up-right */}
-              <motion.div
-                style={{
-                  position: "absolute",
-                  left: "40%",
-                  top: "0%",
-                  y: "-50%",
-                  width: "45%",
-                  height: "100%",
-                  scaleX: branch1ScaleX,
-                  opacity: branch1Opacity,
-                  transformOrigin: "left center",
-                  rotate: -12,
-                  zIndex: -2,
-                  pointerEvents: "none",
-                  filter: "drop-shadow(4px 8px 10px rgba(35,15,5,0.35))",
-                  willChange: "transform, opacity",
-                }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/branch-right.png" alt="" draggable={false}
-                  style={{ width: "100%", height: "100%", objectFit: "contain", objectPosition: "left center", display: "block", userSelect: "none" }} />
-              </motion.div>
-
-              {/* 2nd pair — middle umbrella, faces downward-outward ── */}
-              {/* Lower-left: CW +22° around right edge → tip goes down-left */}
-              <motion.div
-                style={{
-                  position: "absolute",
-                  right: "55%",
-                  top: "5%",
-                  y: "-50%",
-                  width: "40%",
-                  height: "80%",
-                  scaleX: branch2ScaleX,
-                  opacity: branch2Opacity,
-                  transformOrigin: "right center",
-                  rotate: -25,
-                  zIndex: -2,
-                  pointerEvents: "none",
-                  filter: "drop-shadow(4px 8px 10px rgba(35,15,5,0.35))",
-                  willChange: "transform, opacity",
-                }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/branch-left.png" alt="" draggable={false}
-                  style={{ width: "100%", height: "100%", objectFit: "contain", objectPosition: "right center", display: "block", userSelect: "none" }} />
-              </motion.div>
-
-              {/* Lower-right: CCW –22° around left edge → tip goes down-right */}
-              <motion.div
-                style={{
-                  position: "absolute",
-                  left: "50%",
-                  top: "5%",
-                  y: "-50%",
-                  width: "70%",
-                  height: "65%",
-                  scaleX: branch2ScaleX,
-                  opacity: branch2Opacity,
-                  transformOrigin: "left center",
-                  rotate: 25,
-                  zIndex: -2,
-                  pointerEvents: "none",
-                  filter: "drop-shadow(4px 8px 10px rgba(35,15,5,0.35))",
-                  willChange: "transform, opacity",
-                }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/branch-right.png" alt="" draggable={false}
-                  style={{ width: "100%", height: "100%", objectFit: "contain", objectPosition: "left center", display: "block", userSelect: "none" }} />
-              </motion.div>
-
+              {/* ── DECORATIVE FRUITS / FLOWERS ───────────────────────
+                  Light mode: fruit.png   Dark mode: flower.png / flower1.png
+                  Pop-in at 70% of their branch's growth, then bob gently.
+                  flowerVariant (0|1) is pre-assigned per item so the
+                  mapping is stable — doesn't flip on re-render.
+              ─────────────────────────────────────────────────────── */}
+              {fruitDefs.map((f) => (
+                <motion.div
+                  key={`dfruit-${f.id}`}
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{
+                    y: {
+                      duration: f.bobDuration,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      delay: f.id * 0.25,
+                    },
+                  }}
+                  style={{
+                    position: "absolute",
+                    left: f.left,
+                    right: f.right,
+                    top: f.top,
+                    width: f.size,
+                    height: f.size,
+                    rotate: f.rot,
+                    scale: f.phase === "branch1" ? dFruit1Scale : dFruit2Scale,
+                    opacity: f.phase === "branch1" ? dFruit1Opacity : dFruit2Opacity,
+                    zIndex: f.z,
+                    pointerEvents: "none",
+                    filter: isDark
+                      ? "drop-shadow(0 0 8px rgba(178,34,34,0.9)) drop-shadow(0 0 14px rgba(212,175,55,0.5))"
+                      : "drop-shadow(0 3px 7px rgba(80,30,10,0.28))",
+                    transition: "filter 0.5s ease",
+                    willChange: "transform, opacity",
+                    transformOrigin: "center center",
+                  }}
+                >
+                  {/* Cross-fade: light fruit ↔ dark flower */}
+                  <div style={{ position: "relative", width: "100%", height: "100%" }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <motion.img
+                      src={THEME_CONFIG.light.tree.fruit}
+                      alt=""
+                      draggable={false}
+                      animate={{ opacity: isDark ? 0 : 1 }}
+                      transition={{ duration: 0.5 }}
+                      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", display: "block", userSelect: "none" }}
+                    />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <motion.img
+                      src={THEME_CONFIG.dark.tree.flowers[f.flowerVariant]}
+                      alt=""
+                      draggable={false}
+                      animate={{ opacity: isDark ? 1 : 0 }}
+                      transition={{ duration: 0.5 }}
+                      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", display: "block", userSelect: "none" }}
+                    />
+                  </div>
+                </motion.div>
+              ))}
 
               {/* ── HTML CARD OVERLAY ────────────────────────────────
                   Cards are position:absolute within this div.
@@ -707,7 +922,7 @@ export default function Experience() {
             transition={{ duration: 0.2 }}
             className="absolute bottom-4 inset-x-0 text-center text-xs font-sans text-rose-gold pointer-events-none select-none"
           >
-            ✨ Hover a card to bring it forward
+            {isDark ? "✨ Hover a flower to open its card" : "✨ Hover a fruit to open its card"}
           </motion.p>
         </motion.div>
       </div>

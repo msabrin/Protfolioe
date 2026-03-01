@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, Sparkles } from "lucide-react";
+import { useTheme } from "@/components/global/ThemeProvider";
+import { THEME_CONFIG } from "@/components/global/ThemeConfig";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -19,12 +21,13 @@ const fadeUpVariant = {
 };
 
 // ─── Profile photo ────────────────────────────────────────────────────────────
-// Drop your photo at public/images/photo.jpg (or .png / .webp).
-// Update PHOTO_PATH below to match the filename you use.
-const PHOTO_PATH = "/images/me.png";
+// Light theme photo: public/WhiteTheme/images/me.png
+// Dark theme photo:  public/DarkTheme/images/me.png
+// To swap the photo, replace the file in the appropriate theme folder.
 
-function ProfileImage() {
+function ProfileImage({ isDark }: { isDark: boolean }) {
   const [error, setError] = useState(false);
+  const src = isDark ? THEME_CONFIG.dark.profileImage : THEME_CONFIG.light.profileImage;
 
   if (error) {
     return (
@@ -33,7 +36,9 @@ function ProfileImage() {
         <p className="text-xs text-rose-gold font-sans font-medium px-2 text-center leading-snug">
           Add your photo to
           <br />
-          <code className="text-rose-deep/60 text-[10px]">public/images/me.png</code>
+          <code className="text-rose-deep/60 text-[10px]">
+            {isDark ? "public/DarkTheme/images/me.png" : "public/WhiteTheme/images/me.png"}
+          </code>
         </p>
       </div>
     );
@@ -41,7 +46,7 @@ function ProfileImage() {
 
   return (
     <Image
-      src={PHOTO_PATH}
+      src={src}
       alt="Profile photo"
       fill
       sizes="(max-width: 768px) 208px, 256px"
@@ -53,6 +58,7 @@ function ProfileImage() {
 }
 
 export default function Hero() {
+  const { isDark } = useTheme();
   return (
     <section
       id="home"
@@ -61,15 +67,15 @@ export default function Hero() {
       {/* Decorative orbs */}
       <div
         className="absolute top-20 left-10 w-72 h-72 rounded-full opacity-30 blur-3xl pointer-events-none"
-        style={{ background: "radial-gradient(circle, #FFB6C1, transparent)" }}
+        style={{ background: isDark ? "radial-gradient(circle, #8B0000, transparent)" : "radial-gradient(circle, #FFB6C1, transparent)" }}
       />
       <div
         className="absolute bottom-24 right-10 w-96 h-96 rounded-full opacity-25 blur-3xl pointer-events-none"
-        style={{ background: "radial-gradient(circle, #F0C060, transparent)" }}
+        style={{ background: isDark ? "radial-gradient(circle, #B22222, transparent)" : "radial-gradient(circle, #F0C060, transparent)" }}
       />
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-15 blur-3xl pointer-events-none"
-        style={{ background: "radial-gradient(circle, #FFC0CB, transparent)" }}
+        style={{ background: isDark ? "radial-gradient(circle, #6B0000, transparent)" : "radial-gradient(circle, #FFC0CB, transparent)" }}
       />
 
       <motion.div
@@ -92,12 +98,14 @@ export default function Hero() {
           className="relative mb-8"
         >
           <motion.div
-            animate={{ boxShadow: ["0 0 20px #FFC0CB88", "0 0 50px #FFC0CBCC", "0 0 20px #FFC0CB88"] }}
+            animate={{ boxShadow: isDark
+              ? ["0 0 20px #8B000088", "0 0 50px #8B0000CC", "0 0 20px #8B000088"]
+              : ["0 0 20px #FFC0CB88", "0 0 50px #FFC0CBCC", "0 0 20px #FFC0CB88"] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             className="w-52 h-52 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-white/60 relative"
-            style={{ background: "linear-gradient(135deg, #FFD6E0, #FFF3E8)" }}
+            style={{ background: isDark ? "linear-gradient(135deg, #1a0000, #0a0000)" : "linear-gradient(135deg, #FFD6E0, #FFF3E8)" }}
           >
-            <ProfileImage />
+            <ProfileImage isDark={isDark} />
           </motion.div>
           {/* Crown decoration */}
           <motion.div
@@ -135,7 +143,7 @@ export default function Hero() {
         {/* Tagline */}
         <motion.p
           variants={fadeUpVariant}
-          className="font-serif italic text-xl md:text-2xl text-rose-gold mb-3"
+          className={`font-serif italic text-xl md:text-2xl mb-3 transition-colors duration-500 ${isDark ? "text-[#D4AF37]/80" : "text-rose-gold"}`}
         >
           Web Designer · Traveler · Dreamer
         </motion.p>
@@ -143,7 +151,7 @@ export default function Hero() {
         {/* Sub description */}
         <motion.p
           variants={fadeUpVariant}
-          className="font-sans text-rose-deep/70 text-base md:text-lg max-w-xl mb-10 leading-relaxed"
+          className={`font-sans text-base md:text-lg max-w-xl mb-10 leading-relaxed transition-colors duration-500 ${isDark ? "text-[#e2e2e2]/70" : "text-rose-deep/70"}`}
         >
           Crafting digital experiences that feel like stepping into a fairytale.
           <br />
@@ -168,7 +176,7 @@ export default function Hero() {
             <motion.button
               whileHover={{ scale: 1.07, y: -2 }}
               whileTap={{ scale: 0.96 }}
-              className="px-8 py-3 rounded-full font-sans font-medium text-rose-deep transition-all duration-300 glass-pink shadow-glass hover:shadow-glass-lg"
+              className={`px-8 py-3 rounded-full font-sans font-medium transition-all duration-500 glass-pink shadow-glass hover:shadow-glass-lg ${isDark ? "text-[#D4AF37]" : "text-rose-deep"}`}
             >
               Say Hello 💌
             </motion.button>
@@ -178,7 +186,7 @@ export default function Hero() {
 
       {/* Scroll indicator */}
       <motion.div
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-rose-gold/60"
+        className={`absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 transition-colors duration-500 ${isDark ? "text-[#D4AF37]/60" : "text-rose-gold/60"}`}
         animate={{ y: [0, 8, 0] }}
         transition={{ duration: 2, repeat: Infinity }}
       >

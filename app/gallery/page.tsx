@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ZoomIn, Sparkles, Image as ImageIcon } from "lucide-react";
+import { useTheme } from "@/components/global/ThemeProvider";
 
 type GalleryItem = {
   id: number;
@@ -45,6 +46,7 @@ const aspectClasses: Record<GalleryItem["aspectRatio"], string> = {
 };
 
 export default function GalleryPage() {
+  const { isDark } = useTheme();
   const [activeCategory, setActiveCategory] = useState<Category>("all");
   const [lightboxItem, setLightboxItem] = useState<GalleryItem | null>(null);
 
@@ -54,15 +56,15 @@ export default function GalleryPage() {
       : galleryItems.filter((item) => item.category === activeCategory);
 
   return (
-    <main className="min-h-screen hero-bg pt-28 pb-20 px-6">
+    <main className="min-h-screen hero-bg pt-28 pb-20 px-6 transition-colors duration-1000">
       {/* Background orbs */}
       <div
         className="fixed top-20 right-10 w-80 h-80 rounded-full opacity-15 blur-3xl pointer-events-none"
-        style={{ background: "radial-gradient(circle, #FFC0CB, transparent)" }}
+        style={{ background: isDark ? "radial-gradient(circle, #8B0000, transparent)" : "radial-gradient(circle, #FFC0CB, transparent)" }}
       />
       <div
         className="fixed bottom-20 left-10 w-72 h-72 rounded-full opacity-15 blur-3xl pointer-events-none"
-        style={{ background: "radial-gradient(circle, #F0C060, transparent)" }}
+        style={{ background: isDark ? "radial-gradient(circle, #B22222, transparent)" : "radial-gradient(circle, #F0C060, transparent)" }}
       />
 
       <div className="max-w-6xl mx-auto">
@@ -99,10 +101,23 @@ export default function GalleryPage() {
               className="px-5 py-2.5 rounded-full font-sans text-sm font-medium transition-all duration-300"
               style={
                 activeCategory === cat
+                  ? isDark
+                    ? {
+                        background: "linear-gradient(135deg, #8B0000, #D4AF37)",
+                        color: "white",
+                        boxShadow: "0 4px 20px rgba(139, 0, 0, 0.45)",
+                      }
+                    : {
+                        background: "linear-gradient(135deg, #B76E79, #D4A843)",
+                        color: "white",
+                        boxShadow: "0 4px 20px rgba(183, 110, 121, 0.4)",
+                      }
+                  : isDark
                   ? {
-                      background: "linear-gradient(135deg, #B76E79, #D4A843)",
-                      color: "white",
-                      boxShadow: "0 4px 20px rgba(183, 110, 121, 0.4)",
+                      background: "rgba(10, 0, 0, 0.7)",
+                      backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(139, 0, 0, 0.4)",
+                      color: "#8B6914",
                     }
                   : {
                       background: "rgba(255, 248, 240, 0.7)",
@@ -136,7 +151,9 @@ export default function GalleryPage() {
                   aspectClasses[item.aspectRatio]
                 }`}
                 style={{
-                  background: "linear-gradient(135deg, #FFF0F3, #FFF3E8)",
+                  background: isDark
+                    ? "linear-gradient(135deg, #0f0000, #050000)"
+                    : "linear-gradient(135deg, #FFF0F3, #FFF3E8)",
                 }}
                 whileHover={{ scale: 1.02 }}
               >
@@ -154,8 +171,9 @@ export default function GalleryPage() {
                 <motion.div
                   className="absolute inset-0 flex flex-col items-end justify-end p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   style={{
-                    background:
-                      "linear-gradient(to top, rgba(139, 74, 82, 0.7) 0%, transparent 60%)",
+                    background: isDark
+                      ? "linear-gradient(to top, rgba(139, 0, 0, 0.85) 0%, transparent 60%)"
+                      : "linear-gradient(to top, rgba(139, 74, 82, 0.7) 0%, transparent 60%)",
                   }}
                 >
                   <div className="flex items-center gap-2">
@@ -204,7 +222,10 @@ export default function GalleryPage() {
             exit={{ opacity: 0 }}
             onClick={() => setLightboxItem(null)}
             className="fixed inset-0 z-[100] flex items-center justify-center p-6"
-            style={{ background: "rgba(139, 74, 82, 0.7)", backdropFilter: "blur(16px)" }}
+            style={{
+              background: isDark ? "rgba(0, 0, 0, 0.90)" : "rgba(139, 74, 82, 0.7)",
+              backdropFilter: "blur(16px)",
+            }}
           >
             <motion.div
               initial={{ scale: 0.85, opacity: 0, y: 30 }}
@@ -218,7 +239,9 @@ export default function GalleryPage() {
               <div
                 className="w-full h-72 flex items-center justify-center"
                 style={{
-                  background: "linear-gradient(135deg, #FFF0F3, #FFF3E8)",
+                  background: isDark
+                    ? "linear-gradient(135deg, #0f0000, #050000)"
+                    : "linear-gradient(135deg, #FFF0F3, #FFF3E8)",
                 }}
               >
                 <div className="text-center">
@@ -244,9 +267,9 @@ export default function GalleryPage() {
                 onClick={() => setLightboxItem(null)}
                 className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-colors"
                 style={{
-                  background: "rgba(255, 248, 240, 0.8)",
+                  background: isDark ? "rgba(10, 0, 0, 0.88)" : "rgba(255, 248, 240, 0.8)",
                   backdropFilter: "blur(8px)",
-                  border: "1px solid rgba(255, 192, 203, 0.4)",
+                  border: isDark ? "1px solid rgba(139, 0, 0, 0.45)" : "1px solid rgba(255, 192, 203, 0.4)",
                 }}
               >
                 <X size={16} className="text-rose-deep" />

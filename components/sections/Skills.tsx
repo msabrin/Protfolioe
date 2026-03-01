@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Sparkles, Code2, Heart } from "lucide-react";
+import { useTheme } from "@/components/global/ThemeProvider";
 
 const techSkills = [
   { name: "React.js", icon: "⚛️", level: 90 },
@@ -40,12 +41,13 @@ const cardVariant = {
 };
 
 export default function Skills() {
+  const { isDark } = useTheme();
   return (
     <section id="skills" className="py-24 px-6 relative overflow-hidden">
       {/* Background decoration */}
       <div
         className="absolute top-10 left-1/2 -translate-x-1/2 w-[800px] h-96 rounded-full opacity-10 blur-3xl pointer-events-none"
-        style={{ background: "radial-gradient(ellipse, #FFC0CB, transparent)" }}
+        style={{ background: isDark ? "radial-gradient(ellipse, #8B0000, transparent)" : "radial-gradient(ellipse, #FFC0CB, transparent)" }}
       />
 
       <div className="max-w-7xl mx-auto">
@@ -113,7 +115,7 @@ export default function Skills() {
                     transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
                     className="h-full rounded-full"
                     style={{
-                      background: "linear-gradient(90deg, #B76E79, #D4A843)",
+                      background: isDark ? "linear-gradient(90deg, #8B0000, #D4AF37)" : "linear-gradient(90deg, #B76E79, #D4A843)",
                     }}
                   />
                 </div>

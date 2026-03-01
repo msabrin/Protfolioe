@@ -165,3 +165,166 @@ section {
   mask-composite: exclude;
   pointer-events: none;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   DARK MODE — Mystery / Bloody / Dark theme
+   Activated by .dark class on <html> via ThemeProvider
+   ─────────────────────────────────────────────────────────────
+   Transition rule: apply smooth color fades to key elements
+   so nothing snaps; Framer Motion props are unaffected.
+═══════════════════════════════════════════════════════════════ */
+body,
+.section-heading, .section-subheading,
+.card-glass, .glass, .glass-pink, .glass-dark,
+.gradient-text, .btn-primary, .hero-bg,
+.premium-border::before, .text-shimmer {
+  transition:
+    background-color 0.5s ease,
+    background-image 0.5s ease,
+    color 0.5s ease,
+    border-color 0.5s ease,
+    box-shadow 0.5s ease,
+    text-shadow 0.5s ease;
+}
+
+/* Animated page backgrounds cross-fade over 1 s */
+.hero-bg {
+  transition:
+    background-color 1s ease,
+    background-image 1s ease,
+    color 0.5s ease,
+    border-color 0.5s ease,
+    box-shadow 0.5s ease;
+}
+
+/* ── Body ──────────────────────────────────────────────────── */
+.dark body {
+  background-color: #000000;
+  color: #e2e2e2;
+}
+
+/* Dark red vignette — fixed to viewport, lowest layer */
+.dark body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 35%, rgba(139, 0, 0, 0.16) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────── */
+.dark ::-webkit-scrollbar-track  { background: #050000; }
+.dark ::-webkit-scrollbar-thumb  { background: linear-gradient(to bottom, #8B0000, #B22222); }
+.dark ::-webkit-scrollbar-thumb:hover { background: linear-gradient(to bottom, #B22222, #D4AF37); }
+
+/* ── Typography ────────────────────────────────────────────── */
+.dark .section-heading    { color: #D4AF37; text-shadow: 0 0 28px rgba(212, 175, 55, 0.28); }
+.dark .section-subheading { color: #8B6914; text-shadow: 0 0 18px rgba(139, 105, 20, 0.22); }
+
+.dark .gradient-text {
+  background-image: linear-gradient(135deg, #D4AF37, #B22222, #D4AF37);
+}
+.dark .text-shimmer {
+  background: linear-gradient(90deg, #D4AF37 0%, #B22222 30%, #D4AF37 50%, #B22222 70%, #D4AF37 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Generic Tailwind colour class overrides */
+.dark .text-rose-deep { color: #D4AF37; }
+.dark .text-rose-gold { color: #8B6914; }
+
+/* ── Glassmorphism ─────────────────────────────────────────── */
+.dark .glass {
+  background: rgba(10, 0, 0, 0.5);
+  border-color: rgba(139, 0, 0, 0.28);
+}
+.dark .glass-pink {
+  background: rgba(139, 0, 0, 0.12);
+  border-color: rgba(139, 0, 0, 0.32);
+  box-shadow: 0 0 18px rgba(139, 0, 0, 0.28), 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+.dark .card-glass {
+  background: linear-gradient(135deg, rgba(15, 0, 0, 0.88), rgba(30, 5, 5, 0.72));
+  border-color: rgba(139, 0, 0, 0.38);
+}
+
+/* ── Premium border → bloody red / gold gradient ───────────── */
+.dark .premium-border::before {
+  background: linear-gradient(135deg, #8B0000, #D4AF37, #B22222);
+}
+
+/* ── Buttons ───────────────────────────────────────────────── */
+.dark .btn-primary {
+  background: linear-gradient(135deg, #8B0000, #D4AF37);
+  box-shadow: 0 4px 20px rgba(139, 0, 0, 0.52);
+}
+.dark .btn-primary:hover {
+  box-shadow: 0 8px 30px rgba(139, 0, 0, 0.72);
+}
+
+/* ── Hero / page animated background — living shadow ──────── */
+.dark .hero-bg {
+  background: linear-gradient(
+    -45deg,
+    #000000,
+    #0d0000,
+    #1a1a1a,
+    #450a0a,
+    #0d0000,
+    #1a1a1a,
+    #050000
+  );
+  background-size: 400% 400%;
+  animation: gradientShift 12s ease infinite;
+}
+
+/* ── Text: opacity-variant overrides (body text → silver) ─────────────── */
+.dark .text-rose-deep\/80 { color: rgba(226,226,226,0.80); }
+.dark .text-rose-deep\/70 { color: rgba(226,226,226,0.70); }
+.dark .text-rose-deep\/65 { color: rgba(226,226,226,0.65); }
+.dark .text-rose-deep\/60 { color: rgba(226,226,226,0.60); }
+.dark .text-rose-gold\/70 { color: rgba(212,175,55, 0.70); }
+.dark .text-rose-gold\/60 { color: rgba(212,175,55, 0.60); }
+.dark .text-pink-blush\/40 { color: rgba(139,0,0,0.40); }
+.dark .text-white\/75 { color: rgba(226,226,226,0.75); }
+.dark .text-white\/55 { color: rgba(212,175,55, 0.55); }
+
+/* ── Background: chip / tag overrides ─────────────────────────────────── */
+.dark .bg-rose-gold\/15   { background-color: rgba(139,0,0,0.15); }
+.dark .bg-pink-blush\/20  { background-color: rgba(139,0,0,0.18); }
+.dark .bg-pink-blush\/30  { background-color: rgba(139,0,0,0.22); }
+.dark .bg-gold-soft\/30   { background-color: rgba(139,0,0,0.22); }
+.dark .bg-cream-warm      { background-color: rgba(139,0,0,0.18); }
+.dark .bg-cream           { background-color: rgba(5,0,0,0.80); }
+.dark .bg-pink-light\/40  { background-color: rgba(139,0,0,0.20); }
+
+/* ── Border overrides ──────────────────────────────────────────────────── */
+.dark .border-pink-blush\/25 { border-color: rgba(139,0,0,0.28); }
+.dark .border-pink-blush\/30 { border-color: rgba(139,0,0,0.32); }
+
+/* ── Additional opacity variants (Gallery / Contact / Navbar) ───────────── */
+.dark .text-rose-gold\/80 { color: rgba(212,175,55, 0.80); }
+.dark .text-rose-gold\/50 { color: rgba(212,175,55, 0.50); }
+.dark .text-rose-gold\/30 { color: rgba(212,175,55, 0.30); }
+.dark .bg-pink-blush\/25  { background-color: rgba(139,0,0,0.22); }
+
+/* Navbar active-link underline → gold in dark mode */
+.dark .bg-rose-gold { background-color: #D4AF37; }
+
+/* Input placeholder → gold tint in dark mode */
+.dark .placeholder-rose-gold\/50::placeholder { color: rgba(212,175,55, 0.45); }
+
+/* Input focus ring → dark red in dark mode */
+.dark .focus\:ring-pink-blush\/60:focus { --tw-ring-color: rgba(139,0,0,0.40); }
+
+/* ── Footer link / icon red glow in dark mode ──────────────────────────── */
+.dark .footer-hover-glow {
+  transition: filter 0.3s ease, color 0.3s ease;
+}
+.dark .footer-hover-glow:hover {
+  filter: drop-shadow(0 0 8px #B22222);
+}
