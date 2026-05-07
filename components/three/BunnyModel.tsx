@@ -118,37 +118,93 @@ function ModelMesh({ path, isDark }: { path: string; isDark: boolean }) {
   const groupRef    = useRef<THREE.Group>(null);
   const { scene }   = useGLTF(path);
   const { pointer } = useThree();
-  const cloned      = useMemo(() => scene.clone(true), [scene]);
+  const cloned = useMemo(() => {
+    const c = scene.clone(true);
+    if (!isDark) {
+      // Light model's face points in +Y by default → rotate X to face camera.
+      c.rotation.x = Math.PI * 0.65;
+    }
+    // Dark model already faces +Z (toward camera) — no rotation needed.
+    return c;
+  }, [scene, isDark]);
 
-  // No auto-spin — Bounds needs a static model to measure correctly.
-  // User rotates freely with OrbitControls.
-  useFrame((_state, delta) => {
+  useFrame((_state) => {
     const g = groupRef.current;
     if (!g) return;
+    // Group handles only the small pointer-follow tilt; base rotation is on the model.
     g.rotation.x = THREE.MathUtils.lerp(g.rotation.x, -pointer.y * 0.15, 0.05);
   });
 
-  return isDark ? (
-    <group ref={groupRef} rotation={[0, Math.PI, 0]}>
-      <primitive object={cloned} />
-    </group>
-  ) : (
+  return (
     <group ref={groupRef}>
-      <primitive object={cloned} />
+      {/* Inner group handles base orientation for dark model without touching the GLTF clone's baked transforms */}
+      <group rotation={isDark ? [0, Math.PI, 0] : [0, 0, 0]}>
+        <primitive object={cloned} />
+      </group>
     </group>
   );
 }
 
-// ─── Themed scene — Bounds auto-fits the camera to whatever size the GLB is ──
+// ─── Light-mode camera setup ──────────────────────────────────────────────────
+// No Bounds for the light theme — Bounds' fit animation is what kept overriding
+// every shift attempt. Instead, we compute the camera position directly from the
+// GLB's bounding box (with the baked rotation applied) and set it once on mount.
+// The shift is baked into the camera position from the very first frame.
+function LightCameraSetup({ path }: { path: string }) {
+  const { camera }  = useThree();
+  const controls    = useThree(s => s.controls);
+  const { scene: gltfScene } = useGLTF(path);       // cached — already loaded
+
+  useEffect(() => {
+    if (!controls) return;
+
+    // Clone and apply the same rotation baked into the model so the BB is accurate.
+    const clone = gltfScene.clone(true);
+    clone.rotation.x = Math.PI * 0.65;
+    clone.updateMatrixWorld(true);
+
+    const box = new THREE.Box3().setFromObject(clone);
+    if (box.isEmpty()) return;
+
+    const center  = box.getCenter(new THREE.Vector3());
+    const size    = box.getSize(new THREE.Vector3());
+    const maxDim  = Math.max(size.x, size.y, size.z);
+    const fov     = (camera as THREE.PerspectiveCamera).fov * (Math.PI / 180);
+    const dist    = (maxDim / 2 / Math.tan(fov / 2)) * 2.0;
+
+    // Shift baked in from the start — no post-fit adjustment needed.
+    const shift  = 2.4;
+    const camY   = center.y + shift;
+
+    camera.position.set(0, camY, dist);
+    camera.updateProjectionMatrix();
+    (controls as any).target.set(0, camY, 0);
+    (controls as any).update();
+  }, [camera, controls, gltfScene]);
+
+  return null;
+}
+
+// ─── Themed scene ─────────────────────────────────────────────────────────────
+// Dark  → Bounds fit (auto-sizes camera to model).
+// Light → No Bounds; LightCameraSetup positions the camera manually so there is
+//         nothing to fight against when placing the model lower in the viewport.
 function ThemedScene({ isDark }: { isDark: boolean }) {
   const cfg      = isDark ? THEME_CONFIG.dark : THEME_CONFIG.light;
   const fallback = isDark ? <DarkFallbackBunny /> : <FallbackBunny />;
   return (
     <GLBErrorBoundary fallback={fallback}>
       <Suspense fallback={fallback}>
-        <Bounds fit clip margin={1.8}>
-          <ModelMesh path={cfg.model} isDark={isDark} />
-        </Bounds>
+        {isDark ? (
+          <Bounds fit clip margin={1.8}>
+            <ModelMesh path={cfg.model} isDark={isDark} />
+          </Bounds>
+        ) : (
+          <>
+            <ModelMesh path={cfg.model} isDark={isDark} />
+            <LightCameraSetup path={cfg.model} />
+          </>
+        )}
       </Suspense>
     </GLBErrorBoundary>
   );
@@ -233,7 +289,7 @@ export default function BunnyCanvas({ isDark = false }: { isDark?: boolean }) {
 
           <ContactShadows position={[0, -1.3, 0]} opacity={0.25} scale={4} blur={2} color={cfg.shadowColor} />
 
-          <OrbitControls enableZoom={true} enableRotate={true} enablePan={true} dampingFactor={0.08} enableDamping />
+          <OrbitControls makeDefault enableZoom={true} enableRotate={true} enablePan={true} dampingFactor={0.08} enableDamping />
           <Environment preset={cfg.envPreset} />
         </Canvas>
       </motion.div>

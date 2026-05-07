@@ -1,49 +1,96 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ZoomIn, Sparkles, Image as ImageIcon } from "lucide-react";
 import { useTheme } from "@/components/global/ThemeProvider";
 
 type GalleryItem = {
   id: number;
+  src: string;
   title: string;
-  category: "design" | "travel" | "moments" | "sports";
-  emoji: string;
-  aspectRatio: "portrait" | "landscape" | "square";
+  category: "travel" | "moments";
 };
 
+// 17 real images from /public/image/ — update titles/categories as needed
 const galleryItems: GalleryItem[] = [
-  { id: 1, title: "Brand Identity Design", category: "design", emoji: "🎨", aspectRatio: "square" },
-  { id: 2, title: "Mountain Adventure", category: "travel", emoji: "⛰️", aspectRatio: "landscape" },
-  { id: 3, title: "UI Concept — Fairytale App", category: "design", emoji: "✨", aspectRatio: "portrait" },
-  { id: 4, title: "Skating Championship", category: "sports", emoji: "⛸️", aspectRatio: "square" },
-  { id: 5, title: "Sunset at Cox's Bazar", category: "travel", emoji: "🌅", aspectRatio: "landscape" },
-  { id: 6, title: "Web Project Showcase", category: "design", emoji: "💻", aspectRatio: "portrait" },
-  { id: 7, title: "Training Day", category: "sports", emoji: "💪", aspectRatio: "square" },
-  { id: 8, title: "City Lights", category: "travel", emoji: "🌃", aspectRatio: "landscape" },
-  { id: 9, title: "Creative Workspace", category: "moments", emoji: "🌸", aspectRatio: "square" },
-  { id: 10, title: "Logo Collection", category: "design", emoji: "🎯", aspectRatio: "portrait" },
-  { id: 11, title: "Skating Club Event", category: "sports", emoji: "🏆", aspectRatio: "landscape" },
-  { id: 12, title: "Sunset Vibes", category: "moments", emoji: "🌷", aspectRatio: "square" },
+  { id: 1,  src: "/image/1.jpeg",  title: "Sari", category: "travel"  },
+  { id: 2,  src: "/image/2.jpeg",  title: "Sari", category: "travel"  },
+  { id: 3,  src: "/image/3.jpeg",  title: "Sari", category: "travel"  },
+  { id: 4,  src: "/image/4.jpeg",  title: "Beauty", category: "moments"  },
+  { id: 5,  src: "/image/5.jpeg",  title: "Beauty", category: "travel"  },
+  { id: 6,  src: "/image/6.jpeg",  title: "Beauty", category: "travel"  },
+  { id: 7,  src: "/image/7.jpeg",  title: "Beauty", category: "moments"  },
+  { id: 8,  src: "/image/8.jpeg",  title: "Pretty", category: "travel"  },
+  { id: 9,  src: "/image/9.jpeg",  title: "Pretty", category: "moments" },
+  { id: 10, src: "/image/10.jpeg", title: "Pretty", category: "travel"  },
+  { id: 11, src: "/image/11.jpeg", title: "Pretty", category: "moments"  },
+  { id: 12, src: "/image/12.jpeg", title: "Pretty", category: "moments" },
+  { id: 13, src: "/image/13.jpeg", title: "Like Me", category: "travel"  },
+  { id: 14, src: "/image/14.jpeg", title: "Like Me", category: "moments" },
+  { id: 15, src: "/image/15.jpeg", title: "Like Me", category: "moments"  },
+  { id: 16, src: "/image/16.jpeg", title: "Like Me", category: "moments" },
+  { id: 17, src: "/image/17.jpeg", title: "Like Me", category: "travel"  },
 ];
 
-const categories = ["all", "design", "travel", "sports", "moments"] as const;
+const categories = ["all", "travel", "moments"] as const;
 type Category = (typeof categories)[number];
 
 const categoryLabels: Record<Category, string> = {
-  all: "All ✨",
-  design: "Design 🎨",
-  travel: "Travel ✈️",
-  sports: "Sports ⛸️",
+  all:     "All ✨",
+  travel:  "Travel ✈️",
   moments: "Moments 🌸",
 };
 
-const aspectClasses: Record<GalleryItem["aspectRatio"], string> = {
-  portrait: "row-span-2",
-  landscape: "col-span-2",
-  square: "",
-};
+// ─── Lightbox portal — renders at document.body, bypasses all stacking contexts ───
+function Lightbox({ item, onClose }: { item: GalleryItem; onClose: () => void }) {
+  // Lock body scroll while open
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = "unset"; };
+  }, []);
+
+  return createPortal(
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      onClick={onClose}
+      className="fixed inset-0 flex items-center justify-center backdrop-blur-xl cursor-zoom-out"
+      style={{ zIndex: 100000, background: "rgba(0, 0, 0, 0.90)" }}
+    >
+      {/*
+        Wrapper shrinks to the image's actual rendered size.
+        X button anchors to the image corner via absolute positioning.
+        stopPropagation prevents clicks here from reaching the backdrop.
+      */}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative cursor-default"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={item.src}
+          alt={item.title}
+          className="block rounded-2xl"
+          style={{ maxWidth: "90vw", maxHeight: "90vh", objectFit: "contain" }}
+        />
+
+        {/* Close button — always sits on the image's top-right corner */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center bg-white/20 hover:bg-white/40 transition-colors cursor-pointer"
+        >
+          <X size={20} className="text-white" />
+        </button>
+      </div>
+    </motion.div>,
+    document.body
+  );
+}
 
 export default function GalleryPage() {
   const { isDark } = useTheme();
@@ -102,29 +149,11 @@ export default function GalleryPage() {
               style={
                 activeCategory === cat
                   ? isDark
-                    ? {
-                        background: "linear-gradient(135deg, #8B0000, #D4AF37)",
-                        color: "white",
-                        boxShadow: "0 4px 20px rgba(139, 0, 0, 0.45)",
-                      }
-                    : {
-                        background: "linear-gradient(135deg, #B76E79, #D4A843)",
-                        color: "white",
-                        boxShadow: "0 4px 20px rgba(183, 110, 121, 0.4)",
-                      }
+                    ? { background: "linear-gradient(135deg, #8B0000, #D4AF37)", color: "white", boxShadow: "0 4px 20px rgba(139, 0, 0, 0.45)" }
+                    : { background: "linear-gradient(135deg, #B76E79, #D4A843)", color: "white", boxShadow: "0 4px 20px rgba(183, 110, 121, 0.4)" }
                   : isDark
-                  ? {
-                      background: "rgba(10, 0, 0, 0.7)",
-                      backdropFilter: "blur(10px)",
-                      border: "1px solid rgba(139, 0, 0, 0.4)",
-                      color: "#8B6914",
-                    }
-                  : {
-                      background: "rgba(255, 248, 240, 0.7)",
-                      backdropFilter: "blur(10px)",
-                      border: "1px solid rgba(255, 192, 203, 0.4)",
-                      color: "#B76E79",
-                    }
+                  ? { background: "rgba(10, 0, 0, 0.7)", backdropFilter: "blur(10px)", border: "1px solid rgba(139, 0, 0, 0.4)", color: "#8B6914" }
+                  : { background: "rgba(255, 248, 240, 0.7)", backdropFilter: "blur(10px)", border: "1px solid rgba(255, 192, 203, 0.4)", color: "#B76E79" }
               }
             >
               {categoryLabels[cat]}
@@ -132,53 +161,46 @@ export default function GalleryPage() {
           ))}
         </motion.div>
 
-        {/* Gallery grid */}
+        {/* ── Uniform grid — all cards identical size ── */}
         <motion.div
           layout
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[200px]"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
         >
           <AnimatePresence mode="popLayout">
             {filtered.map((item) => (
               <motion.div
                 key={item.id}
                 layout
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.92 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.85 }}
-                transition={{ duration: 0.35 }}
+                exit={{ opacity: 0, scale: 0.88 }}
+                transition={{ duration: 0.3 }}
                 onClick={() => setLightboxItem(item)}
-                className={`relative rounded-3xl overflow-hidden cursor-pointer group card-glass ${
-                  aspectClasses[item.aspectRatio]
-                }`}
-                style={{
-                  background: isDark
-                    ? "linear-gradient(135deg, #0f0000, #050000)"
-                    : "linear-gradient(135deg, #FFF0F3, #FFF3E8)",
-                }}
+                className="relative aspect-square rounded-2xl overflow-hidden cursor-pointer group card-glass"
                 whileHover={{ scale: 1.02 }}
               >
-                {/* Placeholder image area */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                  <span className="text-5xl group-hover:scale-110 transition-transform duration-300">
-                    {item.emoji}
-                  </span>
-                  <span className="text-xs font-sans text-rose-gold/50">
-                    Image Placeholder
-                  </span>
-                </div>
+                {/* Image — fills the square card completely */}
+                <Image
+                  src={item.src}
+                  alt={item.title}
+                  fill
+                  loading="lazy"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                />
 
-                {/* Hover overlay */}
-                <motion.div
-                  className="absolute inset-0 flex flex-col items-end justify-end p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                {/* Bottom glow on hover */}
+                <div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-end justify-end p-4"
                   style={{
                     background: isDark
-                      ? "linear-gradient(to top, rgba(139, 0, 0, 0.85) 0%, transparent 60%)"
-                      : "linear-gradient(to top, rgba(139, 74, 82, 0.7) 0%, transparent 60%)",
+                      ? "linear-gradient(to top, rgba(139, 0, 0, 0.85) 0%, transparent 55%)"
+                      : "linear-gradient(to top, rgba(139, 74, 82, 0.75) 0%, transparent 55%)",
                   }}
                 >
                   <div className="flex items-center gap-2">
                     <div>
-                      <p className="text-white font-sans font-semibold text-sm text-right leading-tight">
+                      <p className="text-white font-sans font-semibold text-sm text-right leading-tight drop-shadow">
                         {item.title}
                       </p>
                       <p className="text-white/70 text-xs font-sans text-right capitalize">
@@ -187,12 +209,12 @@ export default function GalleryPage() {
                     </div>
                     <div
                       className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                      style={{ background: "rgba(255, 255, 255, 0.2)" }}
+                      style={{ background: "rgba(255,255,255,0.2)" }}
                     >
                       <ZoomIn size={14} className="text-white" />
                     </div>
                   </div>
-                </motion.div>
+                </div>
               </motion.div>
             ))}
           </AnimatePresence>
@@ -206,76 +228,15 @@ export default function GalleryPage() {
             className="text-center py-20"
           >
             <ImageIcon size={40} className="text-rose-gold/30 mx-auto mb-3" />
-            <p className="font-sans text-rose-gold/50">
-              No items in this category yet
-            </p>
+            <p className="font-sans text-rose-gold/50">No items in this category yet</p>
           </motion.div>
         )}
       </div>
 
-      {/* Lightbox */}
+      {/* ── Full-screen lightbox — portal renders at document.body ── */}
       <AnimatePresence>
         {lightboxItem && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setLightboxItem(null)}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-6"
-            style={{
-              background: isDark ? "rgba(0, 0, 0, 0.90)" : "rgba(139, 74, 82, 0.7)",
-              backdropFilter: "blur(16px)",
-            }}
-          >
-            <motion.div
-              initial={{ scale: 0.85, opacity: 0, y: 30 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.85, opacity: 0, y: 30 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-lg card-glass rounded-3xl overflow-hidden"
-              style={{ position: "relative" }}
-            >
-              {/* Image placeholder */}
-              <div
-                className="w-full h-72 flex items-center justify-center"
-                style={{
-                  background: isDark
-                    ? "linear-gradient(135deg, #0f0000, #050000)"
-                    : "linear-gradient(135deg, #FFF0F3, #FFF3E8)",
-                }}
-              >
-                <div className="text-center">
-                  <span className="text-7xl">{lightboxItem.emoji}</span>
-                  <p className="text-xs font-sans text-rose-gold/50 mt-2">
-                    Replace with actual image
-                  </p>
-                </div>
-              </div>
-
-              {/* Info */}
-              <div className="p-6">
-                <h3 className="font-serif text-xl font-bold text-rose-deep mb-1">
-                  {lightboxItem.title}
-                </h3>
-                <span className="px-3 py-1 rounded-full text-xs font-sans bg-pink-blush/25 text-rose-gold capitalize">
-                  {lightboxItem.category}
-                </span>
-              </div>
-
-              {/* Close button */}
-              <button
-                onClick={() => setLightboxItem(null)}
-                className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-colors"
-                style={{
-                  background: isDark ? "rgba(10, 0, 0, 0.88)" : "rgba(255, 248, 240, 0.8)",
-                  backdropFilter: "blur(8px)",
-                  border: isDark ? "1px solid rgba(139, 0, 0, 0.45)" : "1px solid rgba(255, 192, 203, 0.4)",
-                }}
-              >
-                <X size={16} className="text-rose-deep" />
-              </button>
-            </motion.div>
-          </motion.div>
+          <Lightbox item={lightboxItem} onClose={() => setLightboxItem(null)} />
         )}
       </AnimatePresence>
     </main>

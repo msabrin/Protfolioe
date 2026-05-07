@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Facebook, Instagram, Mail, Phone, Github, Sparkles, Heart } from "lucide-react";
@@ -70,45 +70,45 @@ const bunnyPositions = [
     duration: 5.8, delay: 0,
   },
   {
-    id: 2, alt: "cute bunny", size: 88,
+    id: 2, alt: "cute bunny", size: 158,
     position: { top: "6%", left: "30%" },
     animate: { y: [0, -12, 0], x: [0, 6, 0] },
     duration: 6.8, delay: 1.0,
   },
   {
-    id: 3, alt: "cute bunny", size: 96,
+    id: 3, alt: "cute bunny", size: 186,
     position: { top: "4%", right: "26%" },
     animate: { y: [0, -14, 0], rotate: [0, -8, 0] },
     duration: 7.2, delay: 0.5,
   },
   {
-    id: 4, alt: "cute bunny", size: 100,
-    position: { top: "3%", right: "2%" },
+    id: 4, alt: "cute bunny", size: 150,
+    position: { top: "3%", right: "8%" },
     animate: { y: [0, -18, 0], rotate: [0, 12, 0] },
     duration: 5.5, delay: 1.6,
   },
 
   // ── ROW 2  top 28–34% ────────────────────────────────────────────────────
   {
-    id: 5, alt: "cute bunny", size: 104,
+    id: 5, alt: "cute bunny", size: 174,
     position: { top: "28%", left: "-20px" },
     animate: { y: [0, -14, 0], x: [0, 7, 0] },
     duration: 6.8, delay: 0.8,
   },
   {
-    id: 6, alt: "cute bunny", size: 86,
+    id: 6, alt: "cute bunny", size: 226,
     position: { top: "32%", left: "18%" },
     animate: { y: [0, -10, 0], rotate: [0, -6, 0] },
     duration: 7.6, delay: 1.4,
   },
   {
-    id: 7, alt: "cute bunny", size: 90,
+    id: 7, alt: "cute bunny", size: 150,
     position: { top: "30%", right: "16%" },
     animate: { y: [0, -12, 0], rotate: [0, 9, 0] },
     duration: 6.4, delay: 0.3,
   },
   {
-    id: 8, alt: "cute bunny", size: 98,
+    id: 8, alt: "cute bunny", size: 158,
     position: { top: "26%", right: "-18px" },
     animate: { y: [0, -16, 0], x: [0, -7, 0] },
     duration: 5.8, delay: 1.9,
@@ -116,13 +116,13 @@ const bunnyPositions = [
 
   // ── ROW 3  top 56–62% ────────────────────────────────────────────────────
   {
-    id: 9, alt: "cute bunny", size: 96,
+    id: 9, alt: "cute bunny", size: 226,
     position: { top: "58%", left: "5%" },
     animate: { y: [0, -14, 0], rotate: [0, -11, 0] },
     duration: 6.2, delay: 1.1,
   },
   {
-    id: 11, alt: "cute bunny", size: 92,
+    id: 11, alt: "cute bunny", size: 182,
     position: { top: "60%", right: "4%" },
     animate: { y: [0, -16, 0], rotate: [0, -8, 0] },
     duration: 5.6, delay: 1.5,
@@ -130,26 +130,26 @@ const bunnyPositions = [
 
   // ── ROW 4  bottom 3–8% ───────────────────────────────────────────────────
   {
-    id: 12, alt: "cute bunny", size: 102,
-    position: { bottom: "4%", left: "3%" },
+    id: 12, alt: "cute bunny", size: 232,
+    position: { bottom: "-8%", left: "-3%" },
     animate: { y: [0, -14, 0], rotate: [0, 10, 0] },
     duration: 6.0, delay: 0.4,
   },
   {
-    id: 13, alt: "cute bunny", size: 86,
+    id: 13, alt: "cute bunny", size: 146,
     position: { bottom: "6%", left: "28%" },
     animate: { y: [0, -10, 0], x: [0, 5, 0] },
     duration: 7.0, delay: 1.2,
   },
   {
-    id: 14, alt: "cute bunny", size: 94,
+    id: 14, alt: "cute bunny", size: 184,
     position: { bottom: "3%", right: "22%" },
     animate: { y: [0, -12, 0], rotate: [0, -9, 0] },
     duration: 6.6, delay: 0.7,
   },
   {
-    id: 15, alt: "cute bunny", size: 100,
-    position: { bottom: "5%", right: "3%" },
+    id: 15, alt: "cute bunny", size: 180,
+    position: { bottom: "-10%", right: "-10%" },
     animate: { y: [0, -16, 0], rotate: [0, 11, 0] },
     duration: 5.4, delay: 1.7,
   },
@@ -225,13 +225,23 @@ function BunnyGif({
 // ─── Footer ───────────────────────────────────────────────────────────────────
 export default function Footer() {
   const { isDark } = useTheme();
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Pick the correct GIF set for the current theme and attach a src to each slot
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // Pick the correct GIF set for the current theme and attach a src to each slot.
+  // On mobile: only the first (primary) bunny is shown to avoid overlapping content.
   const themeGifs = isDark ? THEME_CONFIG.dark.gifs : THEME_CONFIG.light.gifs;
-  const bunnies = bunnyPositions.map((b) => ({
+  const allBunnies = bunnyPositions.map((b) => ({
     ...b,
     src: themeGifs[(b.id - 1) % themeGifs.length],
   }));
+  const bunnies = isMobile ? allBunnies.slice(0, 1) : allBunnies;
 
   return (
     <footer
@@ -398,7 +408,7 @@ export default function Footer() {
             }`}
           >
             <Phone size={14} />
-            +880 1X-XXXX-XXXX
+            +880 1341630469
           </a>
         </motion.div>
 

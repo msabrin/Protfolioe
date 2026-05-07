@@ -176,19 +176,6 @@ export default function About() {
               </div>
             </div>
 
-            {/* Decorative note */}
-            <motion.div
-              animate={{ rotate: [-3, 3, -3] }}
-              transition={{ duration: 4, repeat: Infinity }}
-              className="absolute -bottom-4 -right-4 w-24 h-24 rounded-2xl flex items-center justify-center text-3xl shadow-glass"
-              style={{
-                background: isDark ? "rgba(10,0,0,0.88)" : "rgba(255, 248, 240, 0.85)",
-                backdropFilter: "blur(12px)",
-                border: isDark ? "1px solid rgba(139,0,0,0.4)" : "1px solid rgba(255, 192, 203, 0.4)",
-              }}
-            >
-              🐰
-            </motion.div>
           </motion.div>
         </div>
       </div>

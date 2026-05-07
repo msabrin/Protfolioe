@@ -29,14 +29,11 @@ export const THEME_CONFIG = {
     },
     shadowColor: "#B76E79",
 
-    // ── Footer GIFs ──────────────────────────────────────────────────────────
+    // ── Footer GIFs (3 files exist: judy1–judy3) ─────────────────────────────
     gifs: [
       "/WhiteTheme/gifs/judy1.gif",
       "/WhiteTheme/gifs/judy2.gif",
       "/WhiteTheme/gifs/judy3.gif",
-      "/WhiteTheme/gifs/judy4.gif",
-      "/WhiteTheme/gifs/judy5.gif",
-      "/WhiteTheme/gifs/judy6.gif",
     ],
 
     // ── Floating sticker set ─────────────────────────────────────────────────
@@ -77,14 +74,11 @@ export const THEME_CONFIG = {
     },
     shadowColor: "#8B0000",
 
-    // ── Footer GIFs ──────────────────────────────────────────────────────────
+    // ── Footer GIFs (3 files exist: judy1–judy3) ─────────────────────────────
     gifs: [
       "/DarkTheme/gifs/judy1.gif",
       "/DarkTheme/gifs/judy2.gif",
       "/DarkTheme/gifs/judy3.gif",
-      "/DarkTheme/gifs/judy4.gif",
-      "/DarkTheme/gifs/judy5.gif",
-      "/DarkTheme/gifs/judy6.gif",
     ],
 
     // ── Floating sticker set ─────────────────────────────────────────────────
