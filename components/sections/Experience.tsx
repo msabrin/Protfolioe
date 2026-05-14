@@ -337,10 +337,11 @@ function ExperienceCard({
 
 /* ─── Mobile Stacked Card ────────────────────────────────────────────────── */
 function MobileCard({ exp, index }: { exp: Exp; index: number }) {
+  const fromLeft = index % 2 === 0;
   return (
     <motion.div
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, x: fromLeft ? -50 : 50 }}
+      whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.52, delay: index * 0.10, ease: "easeOut" }}
       whileHover={{ y: -4 }}
@@ -358,21 +359,21 @@ function MobileCard({ exp, index }: { exp: Exp; index: number }) {
         <span className="text-2xl leading-none">{exp.emoji}</span>
       </div>
 
-      <h3 className="font-serif text-lg font-bold text-rose-deep leading-tight mb-1">
+      <h3 className="font-serif text-lg font-bold text-rose-deep dark:text-[#D4AF37] leading-tight mb-1">
         {exp.role}
       </h3>
 
-      <div className="flex items-center gap-1.5 text-rose-gold mb-0.5">
+      <div className="flex items-center gap-1.5 text-rose-gold dark:text-[#e2e2e2] mb-0.5">
         <Building2 size={13} />
         <span className="font-sans text-sm font-medium">{exp.company}</span>
       </div>
 
-      <div className="flex items-center gap-1.5 text-rose-gold/60 mb-3">
+      <div className="flex items-center gap-1.5 text-rose-gold/60 dark:text-[#e2e2e2]/50 mb-3">
         <Calendar size={12} />
         <span className="font-sans text-xs">{exp.duration}</span>
       </div>
 
-      <p className="font-sans text-sm text-rose-deep/68 leading-relaxed mb-3">
+      <p className="font-sans text-sm text-rose-deep/68 dark:text-[#e2e2e2]/75 leading-relaxed mb-3">
         {exp.description}
       </p>
 
@@ -380,7 +381,7 @@ function MobileCard({ exp, index }: { exp: Exp; index: number }) {
         {exp.tags.map((tag) => (
           <span
             key={tag}
-            className="px-2.5 py-0.5 rounded-full text-xs font-sans bg-pink-blush/20 text-rose-gold border border-pink-blush/30"
+            className="px-2.5 py-0.5 rounded-full text-xs font-sans bg-pink-blush/20 dark:bg-[#8B0000]/30 text-rose-gold dark:text-[#D4AF37] border border-pink-blush/30 dark:border-[#8B0000]/50"
           >
             {tag}
           </span>
@@ -392,7 +393,7 @@ function MobileCard({ exp, index }: { exp: Exp; index: number }) {
           href={exp.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-sm font-sans font-medium text-rose-gold hover:text-rose-deep transition-colors duration-200"
+          className="inline-flex items-center gap-1.5 text-sm font-sans font-medium text-rose-gold dark:text-[#D4AF37] hover:text-rose-deep dark:hover:text-white transition-colors duration-200"
         >
           View Website <ExternalLink size={12} />
         </a>

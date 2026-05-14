@@ -85,13 +85,13 @@ export const THEME_CONFIG = {
     stickerTheme: "dark" as const,
 
     // ── Tree assets (Experience section) ─────────────────────────────────────
-    // Dark mode has no fruit.png — uses flower.png and flower1.png instead.
+    // Dark mode has no fruit.png — uses flower.webp and flower1.webp instead.
     tree: {
       trunk:       "/DarkTheme/images/trunk.png",
       branchLeft:  "/DarkTheme/images/branch-left.png",
       branchRight: "/DarkTheme/images/branch-right.png",
       bush:        "/DarkTheme/images/Bush.png",
-      flowers:     ["/DarkTheme/images/flower.png", "/DarkTheme/images/flower1.png"] as [string, string],
+      flowers:     ["/DarkTheme/images/flower.webp", "/DarkTheme/images/flower1.webp"] as [string, string],
     },
 
     // ── Floating sticker SVG paths ────────────────────────────────────────────

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import Link from "next/link";
 import { Facebook, Instagram, Mail, Phone, Github, Sparkles, Heart } from "lucide-react";
 import { useTheme } from "@/components/global/ThemeProvider";
@@ -37,13 +37,13 @@ const socialLinks = [
   {
     icon: Mail,
     label: "Email",
-    href: "mailto:youremail@example.com",
+    href: "mailto:mirzasabrin@hotmail.com",
     hoverColor: "hover:bg-gold-soft/20 hover:border-gold-soft/40 hover:text-gold-soft",
   },
   {
     icon: Phone,
     label: "Phone",
-    href: "tel:+8801XXXXXXXXX",
+    href: "tel:+8801341630469",
     hoverColor: "hover:bg-green-400/20 hover:border-green-400/40 hover:text-green-300",
   },
 ];
@@ -226,6 +226,8 @@ function BunnyGif({
 export default function Footer() {
   const { isDark } = useTheme();
   const [isMobile, setIsMobile] = useState(false);
+  const footerRef = useRef<HTMLElement>(null);
+  const gifsVisible = useInView(footerRef, { once: true, margin: "0px 0px 300px 0px" });
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -245,6 +247,7 @@ export default function Footer() {
 
   return (
     <footer
+      ref={footerRef}
       id="footer"
       className={`relative overflow-hidden pt-24 pb-16 px-6 transition-colors duration-1000 ${
         isDark ? "border-t-2 border-[#8B0000]" : ""
@@ -269,8 +272,8 @@ export default function Footer() {
         }}
       />
 
-      {/* ── Bunny GIFs ── */}
-      {bunnies.map((bunny) => (
+      {/* ── Bunny GIFs — lazy: only rendered once footer is near viewport ── */}
+      {gifsVisible && bunnies.map((bunny) => (
         <BunnyGif key={bunny.id} {...bunny} />
       ))}
 
@@ -389,7 +392,7 @@ export default function Footer() {
           className="flex flex-col sm:flex-row justify-center items-center gap-8 mb-12"
         >
           <a
-            href="mailto:youremail@example.com"
+            href="mailto:mirzasabrin@hotmail.com"
             className={`flex items-center gap-2 text-sm font-sans footer-hover-glow transition-colors duration-300 ${
               isDark
                 ? "text-[#e2e2e2]/70 hover:text-[#D4AF37]"
@@ -397,10 +400,10 @@ export default function Footer() {
             }`}
           >
             <Mail size={14} />
-            youremail@example.com
+            mirzasabrin@hotmail.com
           </a>
           <a
-            href="tel:+8801XXXXXXXXX"
+            href="tel:+8801341630469"
             className={`flex items-center gap-2 text-sm font-sans footer-hover-glow transition-colors duration-300 ${
               isDark
                 ? "text-[#e2e2e2]/70 hover:text-[#D4AF37]"

@@ -19,8 +19,8 @@ const contactInfo = [
   {
     icon: Mail,
     label: "Email",
-    value: "youremail@example.com",
-    href: "mailto:youremail@example.com",
+    value: "mirzasabrin@hotmail.com",
+    href: "mailto:mirzasabrin@hotmail.com",
   },
   {
     icon: Phone,
@@ -54,7 +54,7 @@ export default function ContactPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const text = `Hello! My name is ${form.name}. Subject: ${form.subject}. Message: ${form.message}`;
+    const text = `Hello! My name is ${form.name}. Email: ${form.email}. Subject: ${form.subject}. Message: ${form.message}`;
     const url = `https://wa.me/8801341630469?text=${encodeURIComponent(text)}`;
     window.open(url, "_blank");
     setSubmitted(true);
